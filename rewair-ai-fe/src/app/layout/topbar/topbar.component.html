@@ -1,4 +1,3 @@
-<!-- Backdrop to close dropdown on outside click -->
 @if (dropdownOpen) {
   <div class="backdrop" (click)="closeDropdown()"></div>
 }
@@ -9,16 +8,20 @@
     <span class="topbar-sep">/</span>
     <div class="topbar-sede" [class.open]="dropdownOpen">
       <button class="sede-btn" (click)="toggleDropdown()">
-        <i class="fas fa-map-marker-alt"></i>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="LocationIcon" [size]="14" color="var(--rw-orange)" />
         <span>Sede di {{ currentSede.name }}</span>
-        <i class="fas fa-chevron-down sede-arrow"></i>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="ArrowDownIcon" [size]="12" color="var(--N200)" class="sede-arrow" />
       </button>
       @if (dropdownOpen) {
         <div class="sede-dropdown">
           @for (sede of sedi; track sede.name) {
             <a class="sede-option" [class.active]="sede.name === currentSede.name"
                (click)="selectSede(sede)">
-              <i class="fas fa-check"></i>
+              <span class="sede-check">
+                @if (sede.name === currentSede.name) {
+                  <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="var(--rw-blue)" />
+                }
+              </span>
               <div>
                 <strong>Sede di {{ sede.name }}</strong>
                 <small>{{ sede.country }} — {{ sede.label }}</small>

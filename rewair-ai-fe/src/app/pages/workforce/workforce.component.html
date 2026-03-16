@@ -4,18 +4,20 @@
     <p class="page-subtitle">Pianificazione produzione e gestione operatori</p>
   </div>
   <div class="header-actions">
-    <button class="btn primary" (click)="openModal()"><i class="fas fa-plus"></i> Nuova Schedulazione</button>
+    <button class="btn primary" (click)="openModal()">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="AddIcon" [size]="14" color="white" /> Nuova Schedulazione
+    </button>
   </div>
 </div>
 
 <!-- Page-level tabs -->
 <div class="page-tabs">
   <button class="page-tab" [class.active]="activeView === 'schedule'" (click)="activeView = 'schedule'">
-    <i class="fas fa-calendar-alt"></i> Schedule Produzione
+    <hugeicons-icon [strokeWidth]="1.5" [icon]="CalendarIcon" [size]="16" color="currentColor" /> Schedule Produzione
     <span class="tab-count">{{ schedule.length }}</span>
   </button>
   <button class="page-tab" [class.active]="activeView === 'workers'" (click)="activeView = 'workers'">
-    <i class="fas fa-hard-hat"></i> Operatori
+    <hugeicons-icon [strokeWidth]="1.5" [icon]="UsersIcon" [size]="16" color="currentColor" /> Operatori
     <span class="tab-count">{{ workers.length }}</span>
   </button>
 </div>
@@ -42,10 +44,12 @@
   </div>
 
   @if (loadingSchedule) {
-    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento schedule...</div>
+    <div class="loading-state"><span class="spinner"></span> Caricamento schedule...</div>
   } @else if (schedule.length === 0) {
     <div class="empty-card">
-      <div class="empty-icon"><i class="fas fa-calendar-alt"></i></div>
+      <div class="empty-icon">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="CalendarIcon" [size]="24" color="var(--rw-blue)" />
+      </div>
       <h3>Nessuna schedulazione trovata</h3>
       <p>Non ci sono attività pianificate per il periodo selezionato.</p>
     </div>
@@ -99,7 +103,7 @@
 @if (activeView === 'workers') {
   <div class="filter-bar">
     <div class="search-box">
-      <i class="fas fa-search"></i>
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="SearchIcon" [size]="14" color="var(--N200)" />
       <input type="text" placeholder="Cerca operatore..." [(ngModel)]="workerSearch" (ngModelChange)="applyWorkerFilters()">
     </div>
     <div class="filter-group">
@@ -113,7 +117,7 @@
   </div>
 
   @if (loadingWorkers) {
-    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento operatori...</div>
+    <div class="loading-state"><span class="spinner"></span> Caricamento operatori...</div>
   } @else {
     <div class="workers-stats">
       <div class="stat-card">
@@ -174,7 +178,9 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Nuova Schedulazione</h2>
-        <button class="modal-close" (click)="closeModal()"><i class="fas fa-times"></i></button>
+        <button class="modal-close" (click)="closeModal()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CancelIcon" [size]="18" color="currentColor" />
+        </button>
       </div>
 
       <div class="modal-body">
@@ -245,7 +251,11 @@
           <div class="workers-grid">
             @for (w of workers; track w.id) {
               <div class="worker-chip" [class.selected]="isWorkerSelected(w.id)" (click)="toggleWorker(w.id)">
-                <i class="fas" [class.fa-check-circle]="isWorkerSelected(w.id)" [class.fa-circle]="!isWorkerSelected(w.id)"></i>
+                <hugeicons-icon
+                  [icon]="isWorkerSelected(w.id) ? CheckCircleIcon : CheckCircleIcon"
+                  [size]="14"
+                  [color]="isWorkerSelected(w.id) ? 'var(--rw-blue)' : 'var(--N40)'"
+                />
                 <span>{{ w.employee_code }} — {{ w.first_name }} {{ w.last_name }}</span>
               </div>
             }
@@ -257,9 +267,9 @@
         <button class="btn" (click)="closeModal()">Annulla</button>
         <button class="btn primary" [disabled]="!canSave || savingSchedule" (click)="saveSchedule()">
           @if (savingSchedule) {
-            <i class="fas fa-spinner fa-spin"></i> Salvataggio...
+            <span class="spinner spinner-sm"></span> Salvataggio...
           } @else {
-            <i class="fas fa-check"></i> Crea Schedulazione
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="white" /> Crea Schedulazione
           }
         </button>
       </div>

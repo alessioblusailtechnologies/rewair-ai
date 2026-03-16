@@ -1,17 +1,31 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { HugeiconsIconComponent } from '@hugeicons/angular';
+import {
+  Calendar01Icon, UserGroupIcon, Add01Icon, Search01Icon,
+  Cancel01Icon, CheckmarkBadge01Icon, CheckmarkCircle01Icon
+} from '@hugeicons/core-free-icons';
 import { ApiService } from '../../services/api.service';
 import { Worker, Machine, ProductionSchedule, Order, OrderLine, ShiftType } from '../../models/order.model';
 
 @Component({
   selector: 'app-workforce',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe],
+  imports: [FormsModule, DatePipe, DecimalPipe, HugeiconsIconComponent],
   templateUrl: './workforce.component.html',
   styleUrl: './workforce.component.scss'
 })
 export class WorkforceComponent implements OnInit {
+  // Icons
+  CalendarIcon = Calendar01Icon;
+  UsersIcon = UserGroupIcon;
+  AddIcon = Add01Icon;
+  SearchIcon = Search01Icon;
+  CancelIcon = Cancel01Icon;
+  CheckIcon = CheckmarkBadge01Icon;
+  CheckCircleIcon = CheckmarkCircle01Icon;
+
   activeView: 'schedule' | 'workers' = 'schedule';
 
   schedule: ProductionSchedule[] = [];

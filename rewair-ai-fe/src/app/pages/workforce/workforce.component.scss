@@ -257,8 +257,20 @@
   padding: 48px 20px;
   color: var(--N200);
   font-size: 14px;
-  i { margin-right: 8px; }
 }
+
+.spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--N30);
+  border-top-color: var(--rw-blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.spinner-sm { width: 14px; height: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .empty-state {
   text-align: center;

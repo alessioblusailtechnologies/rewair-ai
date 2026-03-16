@@ -11,13 +11,15 @@
 <div class="kpi-grid">
   @for (kpi of kpis; track kpi.label) {
     <div class="kpi-card">
-      <div class="kpi-icon"><i [class]="kpi.icon"></i></div>
+      <div class="kpi-icon">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="kpi.icon" [size]="20" color="var(--rw-blue)" />
+      </div>
       <div class="kpi-content">
         <span class="kpi-value">{{ kpi.value }}</span>
         <span class="kpi-label">{{ kpi.label }}</span>
       </div>
       <span class="kpi-trend" [class.up]="kpi.up" [class.down]="!kpi.up">
-        <i [class]="kpi.up ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="kpi.up ? ArrowUpIcon : ArrowDownIcon" [size]="12" color="currentColor" />
         {{ kpi.trend }}
       </span>
     </div>

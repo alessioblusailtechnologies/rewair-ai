@@ -11,6 +11,8 @@ import ordersRoutes from './routes/orders.routes';
 import scheduleRoutes from './routes/schedule.routes';
 import productionRoutes from './routes/production.routes';
 import aiRoutes from './routes/ai.routes';
+import integrationsRoutes from './routes/integrations.routes';
+import { startPolling, stopPolling } from './services/email-poller';
 
 dotenv.config();
 
@@ -29,6 +31,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/production', productionRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/integrations', integrationsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -39,4 +42,8 @@ app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`ReWAir API running on http://localhost:${PORT}`);
+  startPolling();
 });
+
+process.on('SIGTERM', () => stopPolling());
+process.on('SIGINT', () => { stopPolling(); process.exit(0); });

@@ -1,12 +1,14 @@
 <aside class="sidebar">
   <div class="sidebar-header">
-    <div class="logo-icon"><i class="fas fa-wind"></i></div>
+    <div class="logo-icon">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="logoIcon" [size]="18" color="white" />
+    </div>
   </div>
 
   <nav class="sidebar-nav">
     @for (item of navItems; track item.route) {
       <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
-        <i [class]="item.icon"></i>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="item.icon" [size]="20" color="currentColor" />
         <span>{{ item.label }}</span>
       </a>
     }
@@ -15,7 +17,7 @@
   <div class="sidebar-secondary">
     @for (item of secondaryItems; track item.route) {
       <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
-        <i [class]="item.icon"></i>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="item.icon" [size]="20" color="currentColor" />
         <span>{{ item.label }}</span>
       </a>
     }

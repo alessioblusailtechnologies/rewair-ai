@@ -1,8 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { HugeiconsIconComponent } from '@hugeicons/angular';
+import {
+  Add01Icon, File01Icon, Mail01Icon, Search01Icon,
+  ArrowRight01Icon, Delete01Icon, SparklesIcon, MagicWand01Icon,
+  Cancel01Icon, CheckmarkBadge01Icon, CloudUploadIcon,
+  AlertCircleIcon, Refresh01Icon, Loading01Icon
+} from '@hugeicons/core-free-icons';
 import { ApiService } from '../../services/api.service';
 import { Order, Customer, Product } from '../../models/order.model';
+import { IntegrationConfig, EmailLog } from '../../models/integration.model';
 
 interface OrderLineForm {
   product_id: string;
@@ -13,22 +21,45 @@ interface OrderLineForm {
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [FormsModule, DatePipe],
+  imports: [FormsModule, DatePipe, HugeiconsIconComponent],
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.scss'
 })
 export class OrdersComponent implements OnInit {
+  // Icons
+  AddIcon = Add01Icon;
+  FileIcon = File01Icon;
+  MailIcon = Mail01Icon;
+  SearchIcon = Search01Icon;
+  DetailIcon = ArrowRight01Icon;
+  DeleteIcon = Delete01Icon;
+  SparklesIcon = SparklesIcon;
+  MagicWandIcon = MagicWand01Icon;
+  CancelIcon = Cancel01Icon;
+  CheckIcon = CheckmarkBadge01Icon;
+  UploadIcon = CloudUploadIcon;
+  AlertIcon = AlertCircleIcon;
+  RefreshIcon = Refresh01Icon;
+  LoadingIcon = Loading01Icon;
+
+  // Data
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   customers: Customer[] = [];
   products: Product[] = [];
   loading = true;
+  emailIntegration: IntegrationConfig | null = null;
 
   searchTerm = '';
   filterStatus = '';
   filterCustomer = '';
 
-  // Modal
+  // Detail panel
+  selectedOrder: Order | null = null;
+  selectedEmailLog: EmailLog | null = null;
+  loadingDetail = false;
+
+  // Manual Order Modal
   showModal = false;
   saving = false;
   form = {
@@ -41,6 +72,13 @@ export class OrdersComponent implements OnInit {
   };
   formLines: OrderLineForm[] = [];
 
+  // AI Document Modal
+  showAIModal = false;
+  aiStep: 'upload' | 'processing' | 'preview' = 'upload';
+  aiFile: File | null = null;
+  aiResult: any = null;
+  aiError = '';
+
   statusMap: Record<string, string> = {
     new: 'Nuovo', confirmed: 'Confermato', in_progress: 'In Produzione',
     completed: 'Completato', cancelled: 'Annullato'
@@ -51,6 +89,9 @@ export class OrdersComponent implements OnInit {
   ngOnInit() {
     this.loadData();
     this.api.getProducts().subscribe(p => this.products = p);
+    this.api.getIntegrations().subscribe(configs => {
+      this.emailIntegration = configs.find(c => c.type === 'email_google' && c.is_active) || null;
+    });
   }
 
   loadData() {
@@ -101,13 +142,34 @@ export class OrdersComponent implements OnInit {
     this.api.deleteOrder(order.id).subscribe(() => this.loadData());
   }
 
-  // ==================== AI Document Modal ====================
-  showAIModal = false;
-  aiStep: 'upload' | 'processing' | 'preview' = 'upload';
-  aiFile: File | null = null;
-  aiResult: any = null;
-  aiError = '';
+  // ==================== Detail Panel ====================
+  openDetail(order: Order) {
+    this.selectedOrder = order;
+    this.selectedEmailLog = null;
+    this.loadingDetail = true;
 
+    // Check if this order was created from an email
+    this.api.getEmailLogs().subscribe({
+      next: logs => {
+        this.selectedEmailLog = logs.find(l => l.order_id === order.id) || null;
+        this.loadingDetail = false;
+      },
+      error: () => this.loadingDetail = false,
+    });
+  }
+
+  closeDetail() {
+    this.selectedOrder = null;
+    this.selectedEmailLog = null;
+  }
+
+  getOrderSource(order: Order): 'email' | 'ai-doc' | 'manual' {
+    if (order.notes?.startsWith('[AI Email]')) return 'email';
+    if (order.notes?.startsWith('[AI]')) return 'ai-doc';
+    return 'manual';
+  }
+
+  // ==================== AI Document Modal ====================
   openAIModal() {
     this.showAIModal = true;
     this.aiStep = 'upload';
@@ -120,25 +182,16 @@ export class OrdersComponent implements OnInit {
 
   onAIFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files?.length) {
-      this.aiFile = input.files[0];
-    }
+    if (input.files?.length) this.aiFile = input.files[0];
   }
 
   processDocument() {
     if (!this.aiFile) return;
     this.aiStep = 'processing';
     this.aiError = '';
-
     this.api.extractOrderFromDocument(this.aiFile).subscribe({
-      next: result => {
-        this.aiResult = result;
-        this.aiStep = 'preview';
-      },
-      error: err => {
-        this.aiError = err?.error?.error || 'Errore durante l\'estrazione AI.';
-        this.aiStep = 'upload';
-      },
+      next: result => { this.aiResult = result; this.aiStep = 'preview'; },
+      error: err => { this.aiError = err?.error?.error || 'Errore durante l\'estrazione AI.'; this.aiStep = 'upload'; },
     });
   }
 
@@ -149,16 +202,10 @@ export class OrdersComponent implements OnInit {
   confirmAIOrder() {
     if (!this.aiResult) return;
     this.saving = true;
-
-    const lines = (this.aiResult.lines || [])
-      .filter((l: any) => l.product_id)
-      .map((l: any, i: number) => ({
-        line_number: i + 1,
-        product_id: l.product_id,
-        quantity: l.quantity,
-        due_date: l.due_date || this.aiResult.requested_delivery_date,
-      }));
-
+    const lines = (this.aiResult.lines || []).filter((l: any) => l.product_id).map((l: any, i: number) => ({
+      line_number: i + 1, product_id: l.product_id, quantity: l.quantity,
+      due_date: l.due_date || this.aiResult.requested_delivery_date,
+    }));
     this.api.createOrder({
       order_number: this.aiResult.order_number || `AI-${Date.now()}`,
       customer_id: this.aiResult.customer_id,
@@ -178,14 +225,7 @@ export class OrdersComponent implements OnInit {
   openModal() {
     this.showModal = true;
     const today = new Date().toISOString().split('T')[0];
-    this.form = {
-      order_number: '',
-      customer_id: '',
-      order_date: today,
-      requested_delivery_date: '',
-      priority: 5,
-      notes: '',
-    };
+    this.form = { order_number: '', customer_id: '', order_date: today, requested_delivery_date: '', priority: 5, notes: '' };
     this.formLines = [{ product_id: '', quantity: 1, due_date: '' }];
   }
 
@@ -200,34 +240,22 @@ export class OrdersComponent implements OnInit {
   }
 
   get canSave(): boolean {
-    return !!this.form.order_number
-      && !!this.form.customer_id
-      && !!this.form.order_date
-      && !!this.form.requested_delivery_date
-      && this.formLines.length > 0
+    return !!this.form.order_number && !!this.form.customer_id && !!this.form.order_date
+      && !!this.form.requested_delivery_date && this.formLines.length > 0
       && this.formLines.every(l => !!l.product_id && l.quantity > 0);
   }
 
   saveOrder() {
     if (!this.canSave) return;
     this.saving = true;
-
     const lines = this.formLines.map((l, i) => ({
-      line_number: i + 1,
-      product_id: l.product_id,
-      quantity: l.quantity,
+      line_number: i + 1, product_id: l.product_id, quantity: l.quantity,
       due_date: l.due_date || this.form.requested_delivery_date,
     }));
-
     this.api.createOrder({
-      order_number: this.form.order_number,
-      customer_id: this.form.customer_id,
-      order_date: this.form.order_date,
-      requested_delivery_date: this.form.requested_delivery_date,
-      priority: this.form.priority,
-      status: 'new',
-      notes: this.form.notes || null,
-      lines,
+      order_number: this.form.order_number, customer_id: this.form.customer_id,
+      order_date: this.form.order_date, requested_delivery_date: this.form.requested_delivery_date,
+      priority: this.form.priority, status: 'new', notes: this.form.notes || null, lines,
     }).subscribe({
       next: () => { this.saving = false; this.closeModal(); this.loadData(); },
       error: () => this.saving = false,

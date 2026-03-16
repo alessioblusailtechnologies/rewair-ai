@@ -7,6 +7,7 @@ import {
   Worker, Machine, ShiftType, ProductionSchedule,
   WorkforceAssignment, WorkforceGap
 } from '../models/order.model';
+import { IntegrationConfig, EmailLog } from '../models/integration.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -119,5 +120,26 @@ export class ApiService {
     if (from) params = params.set('from', from);
     if (to) params = params.set('to', to);
     return this.http.get<WorkforceGap[]>(`${this.url}/schedule/views/workforce-gap`, { params });
+  }
+
+  // --- Integrations ---
+  getIntegrations(): Observable<IntegrationConfig[]> {
+    return this.http.get<IntegrationConfig[]>(`${this.url}/integrations`);
+  }
+
+  getGoogleOAuthUrl(): Observable<{ url: string }> {
+    return this.http.get<{ url: string }>(`${this.url}/integrations/email/oauth/url`);
+  }
+
+  deleteEmailConfig(): Observable<void> {
+    return this.http.delete<void>(`${this.url}/integrations/email/config`);
+  }
+
+  toggleEmailIntegration(active: boolean): Observable<IntegrationConfig> {
+    return this.http.post<IntegrationConfig>(`${this.url}/integrations/email/toggle`, { active });
+  }
+
+  getEmailLogs(): Observable<EmailLog[]> {
+    return this.http.get<EmailLog[]>(`${this.url}/integrations/email/logs`);
   }
 }

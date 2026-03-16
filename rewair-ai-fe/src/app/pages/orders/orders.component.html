@@ -4,16 +4,27 @@
     <p class="page-subtitle">Crea, gestisci e monitora gli ordini di produzione</p>
   </div>
   <div class="header-actions">
-    <button class="btn primary" (click)="openModal()"><i class="fas fa-plus"></i> Nuovo Ordine</button>
-    <button class="btn ai" (click)="openAIModal()"><i class="fas fa-file-alt"></i> Genera da Documento AI</button>
-    <button class="btn ai"><i class="fas fa-envelope"></i> Genera da Email AI</button>
+    @if (emailIntegration) {
+      <div class="email-listening">
+        <span class="listening-dot"></span>
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="SparklesIcon" [size]="13" color="var(--rw-orange)" />
+        <span>AI in ascolto su <strong>{{ emailIntegration.email_address }}</strong></span>
+      </div>
+    }
+    <button class="btn-ai-doc" (click)="openAIModal()">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="SparklesIcon" [size]="15" color="currentColor" />
+      Genera da Documento
+    </button>
+    <button class="btn primary" (click)="openModal()">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="AddIcon" [size]="14" color="white" /> Nuovo Ordine
+    </button>
   </div>
 </div>
 
 <!-- Filters -->
 <div class="filter-bar">
   <div class="search-box">
-    <i class="fas fa-search"></i>
+    <hugeicons-icon [strokeWidth]="1.5" [icon]="SearchIcon" [size]="14" color="var(--N200)" />
     <input type="text" placeholder="Cerca ordini..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
   </div>
   <div class="filter-group">
@@ -36,7 +47,7 @@
 
 <!-- Table -->
 @if (loading) {
-  <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento ordini...</div>
+  <div class="loading-state"><span class="spinner"></span> Caricamento ordini...</div>
 } @else {
   <div class="table-container">
     <table class="data-table">
@@ -72,8 +83,12 @@
             <td>{{ order.order_date | date:'dd MMM yyyy':'':'it' }}</td>
             <td>{{ order.requested_delivery_date | date:'dd MMM yyyy':'':'it' }}</td>
             <td>
-              <button class="action-btn" title="Dettagli"><i class="fas fa-eye"></i></button>
-              <button class="action-btn" title="Elimina" (click)="deleteOrder(order)"><i class="fas fa-trash"></i></button>
+              <button class="action-btn detail-btn" title="Dettagli" (click)="openDetail(order)">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="DetailIcon" [size]="15" color="currentColor" />
+              </button>
+              <button class="action-btn" title="Elimina" (click)="deleteOrder(order)">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="DeleteIcon" [size]="15" color="currentColor" />
+              </button>
             </td>
           </tr>
         }
@@ -85,42 +100,185 @@
   </div>
 }
 
+<!-- ============ DETAIL PANEL ============ -->
+@if (selectedOrder) {
+  <div class="modal-overlay" (click)="closeDetail()">
+    <div class="detail-panel" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ selectedOrder.order_number }}</h2>
+        <button class="modal-close" (click)="closeDetail()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CancelIcon" [size]="18" color="currentColor" />
+        </button>
+      </div>
+
+      <div class="detail-body">
+        <!-- Order Info -->
+        <div class="detail-section">
+          <h3 class="detail-section-title">Informazioni Ordine</h3>
+          <div class="detail-grid">
+            <div class="detail-field">
+              <span class="detail-label">Cliente</span>
+              <span class="detail-value">{{ selectedOrder.customer?.name }}</span>
+            </div>
+            <div class="detail-field">
+              <span class="detail-label">Stato</span>
+              <span class="detail-value"><span class="badge" [class]="selectedOrder.status">{{ statusMap[selectedOrder.status] || selectedOrder.status }}</span></span>
+            </div>
+            <div class="detail-field">
+              <span class="detail-label">Priorità</span>
+              <span class="detail-value"><span class="badge" [class]="priorityClass(selectedOrder.priority)">{{ priorityLabel(selectedOrder.priority) }}</span></span>
+            </div>
+            <div class="detail-field">
+              <span class="detail-label">Data Ordine</span>
+              <span class="detail-value">{{ selectedOrder.order_date | date:'dd MMM yyyy':'':'it' }}</span>
+            </div>
+            <div class="detail-field">
+              <span class="detail-label">Consegna Richiesta</span>
+              <span class="detail-value">{{ selectedOrder.requested_delivery_date | date:'dd MMM yyyy':'':'it' }}</span>
+            </div>
+            @if (selectedOrder.notes) {
+              <div class="detail-field full">
+                <span class="detail-label">Note</span>
+                <span class="detail-value">{{ selectedOrder.notes }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Order Lines -->
+        @if (selectedOrder.lines?.length) {
+          <div class="detail-section">
+            <h3 class="detail-section-title">Righe Ordine ({{ selectedOrder.lines!.length }})</h3>
+            <div class="detail-lines">
+              @for (line of selectedOrder.lines; track line.id) {
+                <div class="detail-line">
+                  <div class="line-info">
+                    <span class="line-num">#{{ line.line_number }}</span>
+                    <span class="line-product">{{ line.product?.name || line.product_id }}</span>
+                  </div>
+                  <div class="line-meta">
+                    <span class="line-qty">{{ line.quantity }} pz</span>
+                    <span class="badge" [class]="line.status">{{ line.status }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Source / AI Analysis -->
+        <div class="detail-section">
+          <h3 class="detail-section-title">
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="SparklesIcon" [size]="14" color="var(--rw-orange)" />
+            Origine Ordine
+          </h3>
+
+          @if (getOrderSource(selectedOrder) === 'email') {
+            <div class="source-card ai-source">
+              <div class="source-header">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="MailIcon" [size]="16" color="var(--rw-orange)" />
+                <span class="source-type">Generato automaticamente da Email AI</span>
+              </div>
+              @if (loadingDetail) {
+                <div class="source-loading"><span class="spinner spinner-sm"></span> Caricamento analisi AI...</div>
+              } @else if (selectedEmailLog) {
+                <div class="source-detail">
+                  <div class="ai-step-item">
+                    <span class="ai-step-num">1</span>
+                    <div>
+                      <strong>Email ricevuta</strong>
+                      <p>Da: {{ selectedEmailLog.from_name || selectedEmailLog.from_address }}<br>
+                      Oggetto: {{ selectedEmailLog.subject }}<br>
+                      Data: {{ selectedEmailLog.received_at | date:'dd MMM yyyy HH:mm':'':'it' }}</p>
+                    </div>
+                  </div>
+                  <div class="ai-step-item">
+                    <span class="ai-step-num">2</span>
+                    <div>
+                      <strong>Classificazione AI</strong>
+                      <p>L'AI ha determinato che questa email contiene una richiesta d'ordine con confidenza del <strong>{{ (selectedEmailLog.ai_confidence! * 100).toFixed(0) }}%</strong>.</p>
+                    </div>
+                  </div>
+                  <div class="ai-step-item">
+                    <span class="ai-step-num">3</span>
+                    <div>
+                      <strong>Estrazione dati</strong>
+                      <p>{{ selectedEmailLog.ai_summary }}</p>
+                    </div>
+                  </div>
+                  <div class="ai-step-item">
+                    <span class="ai-step-num">4</span>
+                    <div>
+                      <strong>Ordine creato automaticamente</strong>
+                      <p>Cliente, prodotti e quantità sono stati estratti e matchati con il database ReWAir.</p>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+          } @else if (getOrderSource(selectedOrder) === 'ai-doc') {
+            <div class="source-card ai-source">
+              <div class="source-header">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="FileIcon" [size]="16" color="var(--rw-orange)" />
+                <span class="source-type">Generato da Documento AI</span>
+              </div>
+              <p class="source-note">Questo ordine è stato creato dall'analisi AI di un documento caricato manualmente.</p>
+            </div>
+
+          } @else {
+            <div class="source-card manual-source">
+              <div class="source-header">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="AddIcon" [size]="16" color="var(--rw-blue)" />
+                <span class="source-type">Inserimento manuale</span>
+              </div>
+              <p class="source-note">Questo ordine è stato creato manualmente da un operatore.</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- ============ MODAL: AI DOCUMENT ============ -->
 @if (showAIModal) {
   <div class="modal-overlay" (click)="closeAIModal()">
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h2><i class="fas fa-brain ai-icon"></i> Genera Ordine da Documento</h2>
-        <button class="modal-close" (click)="closeAIModal()"><i class="fas fa-times"></i></button>
+        <h2><hugeicons-icon [strokeWidth]="1.5" [icon]="SparklesIcon" [size]="20" color="var(--rw-orange)" class="header-icon" /> Genera Ordine da Documento</h2>
+        <button class="modal-close" (click)="closeAIModal()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CancelIcon" [size]="18" color="currentColor" />
+        </button>
       </div>
 
       <div class="modal-body">
-        <!-- STEP: Upload -->
         @if (aiStep === 'upload') {
           <div class="upload-area" (click)="fileInput.click()">
             <input type="file" #fileInput (change)="onAIFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg,.txt,.csv" style="display:none">
             @if (aiFile) {
-              <i class="fas fa-file-check"></i>
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="FileIcon" [size]="32" color="var(--rw-orange)" />
               <p><strong>{{ aiFile.name }}</strong></p>
               <span class="upload-hint">{{ (aiFile.size / 1024).toFixed(0) }} KB — Clicca per cambiare</span>
             } @else {
-              <i class="fas fa-cloud-upload-alt"></i>
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="UploadIcon" [size]="32" color="var(--N80)" />
               <p>Trascina o clicca per caricare un documento</p>
               <span class="upload-hint">PDF, immagini, testo — Max 10MB</span>
             }
           </div>
           @if (aiError) {
-            <div class="ai-error"><i class="fas fa-exclamation-circle"></i> {{ aiError }}</div>
+            <div class="ai-error">
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="14" color="currentColor" /> {{ aiError }}
+            </div>
           }
           <div class="modal-footer">
             <button class="btn" (click)="closeAIModal()">Annulla</button>
             <button class="btn ai" [disabled]="!aiFile" (click)="processDocument()">
-              <i class="fas fa-magic"></i> Analizza con AI
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="MagicWandIcon" [size]="14" color="white" /> Analizza con AI
             </button>
           </div>
         }
 
-        <!-- STEP: Processing -->
         @if (aiStep === 'processing') {
           <div class="ai-processing">
             <div class="ai-spinner"></div>
@@ -129,10 +287,9 @@
           </div>
         }
 
-        <!-- STEP: Preview -->
         @if (aiStep === 'preview' && aiResult) {
           <div class="ai-result-header">
-            <i class="fas fa-check-circle"></i> Ordine estratto con successo
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="18" color="currentColor" /> Ordine estratto con successo
             <span class="ai-confidence">Confidenza: {{ (aiResult.confidence * 100).toFixed(0) }}%</span>
           </div>
           <div class="ai-summary">{{ aiResult.raw_summary }}</div>
@@ -142,7 +299,9 @@
               <span class="ai-label">Cliente</span>
               <span class="ai-value" [class.unresolved]="!aiResult.customer_id">
                 {{ aiResult.customer_name }}
-                @if (!aiResult.customer_id) { <i class="fas fa-exclamation-triangle" title="Cliente non trovato nel DB"></i> }
+                @if (!aiResult.customer_id) {
+                  <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="12" color="var(--rw-orange)" />
+                }
               </span>
             </div>
             @if (aiResult.order_number) {
@@ -175,24 +334,30 @@
               <div class="ai-line" [class.unresolved]="!line.product_id">
                 <span class="ai-line-product">
                   {{ line.product_sku || '' }} {{ line.product_name }}
-                  @if (!line.product_id) { <i class="fas fa-exclamation-triangle" title="Prodotto non trovato nel DB"></i> }
+                  @if (!line.product_id) {
+                    <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="12" color="var(--rw-orange)" />
+                  }
                 </span>
                 <span class="ai-line-qty">x{{ line.quantity }}</span>
               </div>
             }
           </div>
 
+          @if (!aiResult.customer_id) {
+            <div class="ai-error">
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="14" color="currentColor" /> Cliente non trovato nel database. Impossibile creare l'ordine automaticamente.
+            </div>
+          }
           <div class="modal-footer">
             <button class="btn" (click)="closeAIModal()">Annulla</button>
-            <button class="btn" (click)="aiStep = 'upload'"><i class="fas fa-redo"></i> Riprova</button>
-            @if (!aiResult.customer_id) {
-              <div class="ai-error"><i class="fas fa-exclamation-circle"></i> Cliente non trovato nel database. Impossibile creare l'ordine automaticamente.</div>
-            }
+            <button class="btn" (click)="aiStep = 'upload'">
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="RefreshIcon" [size]="14" color="currentColor" /> Riprova
+            </button>
             <button class="btn primary" [disabled]="!aiResult.customer_id || !hasResolvableLines() || saving" (click)="confirmAIOrder()">
               @if (saving) {
-                <i class="fas fa-spinner fa-spin"></i> Creazione...
+                <span class="spinner spinner-sm"></span> Creazione...
               } @else {
-                <i class="fas fa-check"></i> Conferma e Crea Ordine
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="white" /> Conferma e Crea Ordine
               }
             </button>
           </div>
@@ -208,11 +373,12 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <h2>Nuovo Ordine</h2>
-        <button class="modal-close" (click)="closeModal()"><i class="fas fa-times"></i></button>
+        <button class="modal-close" (click)="closeModal()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CancelIcon" [size]="18" color="currentColor" />
+        </button>
       </div>
 
       <div class="modal-body">
-        <!-- Row 1: N° Ordine + Cliente -->
         <div class="form-row">
           <div class="form-field">
             <label>N° Ordine</label>
@@ -229,7 +395,6 @@
           </div>
         </div>
 
-        <!-- Row 2: Date + Priorità -->
         <div class="form-row three">
           <div class="form-field">
             <label>Data Ordine</label>
@@ -245,17 +410,17 @@
           </div>
         </div>
 
-        <!-- Note -->
         <div class="form-field full">
           <label>Note</label>
           <textarea rows="2" placeholder="Note opzionali..." [(ngModel)]="form.notes"></textarea>
         </div>
 
-        <!-- Righe ordine -->
         <div class="lines-section">
           <div class="lines-header">
             <label class="section-label">Righe Ordine</label>
-            <button class="btn-add-line" (click)="addLine()"><i class="fas fa-plus"></i> Aggiungi riga</button>
+            <button class="btn-add-line" (click)="addLine()">
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="AddIcon" [size]="12" color="currentColor" /> Aggiungi riga
+            </button>
           </div>
 
           @for (line of formLines; track $index; let i = $index) {
@@ -275,10 +440,10 @@
               </div>
               <div class="form-field line-date">
                 <label>Consegna riga</label>
-                <input type="date" [(ngModel)]="line.due_date" [placeholder]="form.requested_delivery_date">
+                <input type="date" [(ngModel)]="line.due_date">
               </div>
               <button class="btn-remove-line" (click)="removeLine(i)" [disabled]="formLines.length <= 1" title="Rimuovi riga">
-                <i class="fas fa-trash-alt"></i>
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="DeleteIcon" [size]="14" color="currentColor" />
               </button>
             </div>
           }
@@ -289,9 +454,9 @@
         <button class="btn" (click)="closeModal()">Annulla</button>
         <button class="btn primary" [disabled]="!canSave || saving" (click)="saveOrder()">
           @if (saving) {
-            <i class="fas fa-spinner fa-spin"></i> Salvataggio...
+            <span class="spinner spinner-sm"></span> Salvataggio...
           } @else {
-            <i class="fas fa-check"></i> Crea Ordine
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="white" /> Crea Ordine
           }
         </button>
       </div>
