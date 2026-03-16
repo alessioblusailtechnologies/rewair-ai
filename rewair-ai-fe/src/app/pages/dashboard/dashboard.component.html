@@ -1,0 +1,25 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-subtitle">Stabilimento ReWAir — Panoramica in tempo reale</p>
+  </div>
+  <div class="header-actions">
+    <span class="live-badge"><span class="live-dot"></span> Live</span>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  @for (kpi of kpis; track kpi.label) {
+    <div class="kpi-card">
+      <div class="kpi-icon"><i [class]="kpi.icon"></i></div>
+      <div class="kpi-content">
+        <span class="kpi-value">{{ kpi.value }}</span>
+        <span class="kpi-label">{{ kpi.label }}</span>
+      </div>
+      <span class="kpi-trend" [class.up]="kpi.up" [class.down]="!kpi.up">
+        <i [class]="kpi.up ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+        {{ kpi.trend }}
+      </span>
+    </div>
+  }
+</div>

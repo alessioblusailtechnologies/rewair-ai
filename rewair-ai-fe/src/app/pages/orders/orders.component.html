@@ -1,0 +1,183 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Gestione Ordini</h1>
+    <p class="page-subtitle">Crea, gestisci e monitora gli ordini di produzione</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn primary" (click)="openModal()"><i class="fas fa-plus"></i> Nuovo Ordine</button>
+    <button class="btn ai"><i class="fas fa-file-alt"></i> Genera da Documento AI</button>
+    <button class="btn ai"><i class="fas fa-envelope"></i> Genera da Email AI</button>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="filter-bar">
+  <div class="search-box">
+    <i class="fas fa-search"></i>
+    <input type="text" placeholder="Cerca ordini..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+  </div>
+  <div class="filter-group">
+    <select [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()">
+      <option value="">Tutti gli stati</option>
+      <option value="new">Nuovo</option>
+      <option value="confirmed">Confermato</option>
+      <option value="in_progress">In Produzione</option>
+      <option value="completed">Completato</option>
+      <option value="cancelled">Annullato</option>
+    </select>
+    <select [(ngModel)]="filterCustomer" (ngModelChange)="applyFilters()">
+      <option value="">Tutti i clienti</option>
+      @for (c of customers; track c.id) {
+        <option [value]="c.id">{{ c.name }}</option>
+      }
+    </select>
+  </div>
+</div>
+
+<!-- Table -->
+@if (loading) {
+  <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento ordini...</div>
+} @else {
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>N° Ordine</th>
+          <th>Cliente</th>
+          <th>Prodotti</th>
+          <th>Righe</th>
+          <th>Qtà Tot.</th>
+          <th>Priorità</th>
+          <th>Stato</th>
+          <th>Data Ordine</th>
+          <th>Consegna</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of filteredOrders; track order.id) {
+          <tr>
+            <td><strong>{{ order.order_number }}</strong></td>
+            <td>
+              <span class="customer-name">{{ order.customer?.name }}</span>
+              @if (order.customer?.priority_class === 'A') {
+                <span class="badge urgente">OEM</span>
+              }
+            </td>
+            <td class="product-cell" [title]="productSummary(order)">{{ productSummary(order) }}</td>
+            <td>{{ order.lines?.length || 0 }}</td>
+            <td>{{ totalQty(order) }}</td>
+            <td><span class="badge" [class]="priorityClass(order.priority)">{{ priorityLabel(order.priority) }}</span></td>
+            <td><span class="badge" [class]="order.status">{{ statusMap[order.status] || order.status }}</span></td>
+            <td>{{ order.order_date | date:'dd MMM yyyy':'':'it' }}</td>
+            <td>{{ order.requested_delivery_date | date:'dd MMM yyyy':'':'it' }}</td>
+            <td>
+              <button class="action-btn" title="Dettagli"><i class="fas fa-eye"></i></button>
+              <button class="action-btn" title="Elimina" (click)="deleteOrder(order)"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>
+        }
+        @empty {
+          <tr><td colspan="10" class="empty-state">Nessun ordine trovato</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<!-- ============ MODAL: NUOVO ORDINE ============ -->
+@if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nuovo Ordine</h2>
+        <button class="modal-close" (click)="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Row 1: N° Ordine + Cliente -->
+        <div class="form-row">
+          <div class="form-field">
+            <label>N° Ordine</label>
+            <input type="text" placeholder="Es: ORD-2026-0153" [(ngModel)]="form.order_number">
+          </div>
+          <div class="form-field">
+            <label>Cliente</label>
+            <select [(ngModel)]="form.customer_id">
+              <option value="">Seleziona cliente...</option>
+              @for (c of customers; track c.id) {
+                <option [value]="c.id">{{ c.name }} ({{ c.priority_class }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2: Date + Priorità -->
+        <div class="form-row three">
+          <div class="form-field">
+            <label>Data Ordine</label>
+            <input type="date" [(ngModel)]="form.order_date">
+          </div>
+          <div class="form-field">
+            <label>Data Consegna</label>
+            <input type="date" [(ngModel)]="form.requested_delivery_date">
+          </div>
+          <div class="form-field">
+            <label>Priorità (1=max, 10=min)</label>
+            <input type="number" min="1" max="10" [(ngModel)]="form.priority">
+          </div>
+        </div>
+
+        <!-- Note -->
+        <div class="form-field full">
+          <label>Note</label>
+          <textarea rows="2" placeholder="Note opzionali..." [(ngModel)]="form.notes"></textarea>
+        </div>
+
+        <!-- Righe ordine -->
+        <div class="lines-section">
+          <div class="lines-header">
+            <label class="section-label">Righe Ordine</label>
+            <button class="btn-add-line" (click)="addLine()"><i class="fas fa-plus"></i> Aggiungi riga</button>
+          </div>
+
+          @for (line of formLines; track $index; let i = $index) {
+            <div class="line-row">
+              <div class="form-field line-product">
+                <label>Prodotto</label>
+                <select [(ngModel)]="line.product_id">
+                  <option value="">Seleziona...</option>
+                  @for (p of products; track p.id) {
+                    <option [value]="p.id">{{ p.sku }} — {{ p.name }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-field line-qty">
+                <label>Qtà</label>
+                <input type="number" min="1" [(ngModel)]="line.quantity">
+              </div>
+              <div class="form-field line-date">
+                <label>Consegna riga</label>
+                <input type="date" [(ngModel)]="line.due_date" [placeholder]="form.requested_delivery_date">
+              </div>
+              <button class="btn-remove-line" (click)="removeLine(i)" [disabled]="formLines.length <= 1" title="Rimuovi riga">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" (click)="closeModal()">Annulla</button>
+        <button class="btn primary" [disabled]="!canSave || saving" (click)="saveOrder()">
+          @if (saving) {
+            <i class="fas fa-spinner fa-spin"></i> Salvataggio...
+          } @else {
+            <i class="fas fa-check"></i> Crea Ordine
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --sidebar-width: 82px;
+  --topbar-height: 48px;
+
+  // ReWAir Brand
+  --rw-blue: #1e73be;
+  --rw-blue-dark: #0d4f8a;
+  --rw-blue-darker: #0a3d6b;
+  --rw-blue-darkest: #072c4e;
+  --rw-blue-light: #4a9fe5;
+  --rw-blue-bg: #e8f2fc;
+  --rw-orange: #EF7C2C;
+  --rw-orange-light: #f5a366;
+  --rw-orange-bg: #fef0e4;
+  --rw-green: #619e85;
+  --rw-green-bg: #e4f0eb;
+
+  // Jira neutrals
+  --N900: #172B4D;
+  --N800: #253858;
+  --N700: #344563;
+  --N500: #42526E;
+  --N400: #505F79;
+  --N300: #5E6C84;
+  --N200: #6B778C;
+  --N100: #7A869A;
+  --N80: #97A0AF;
+  --N60: #B3BAC5;
+  --N40: #C1C7D0;
+  --N30: #DFE1E6;
+  --N20: #EBECF0;
+  --N10: #F4F5F7;
+  --N0: #FFFFFF;
+
+  // Semantic
+  --red: #DE350B;
+  --red-bg: #FFEBE6;
+  --green: #36B37E;
+  --green-bg: #E3FCEF;
+  --yellow: #FF991F;
+  --yellow-bg: #FFFAE6;
+  --purple: #6554C0;
+  --purple-bg: #EAE6FF;
+  --teal: #00B8D9;
+  --teal-bg: #E6FCFF;
+
+  // Radius
+  --r-sm: 3px;
+  --r: 4px;
+  --r-lg: 8px;
+
+  // Shadows
+  --shadow-sm: 0 1px 1px rgba(9,30,66,0.13);
+  --shadow: 0 1px 2px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
+  --shadow-lg: 0 4px 8px -2px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
+  --shadow-xl: 0 8px 16px -4px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
+
+  --t: 0.15s ease-in-out;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: var(--N900);
+  background: var(--N10);
+  font-size: 14px;
+  line-height: 1.43;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Scrollbar
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--N10); }
+::-webkit-scrollbar-thumb { background: var(--N40); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--N80); }
+
+// Badges
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 20px;
+
+  &.in-attesa { background: var(--yellow-bg); color: #FF8B00; }
+  &.in-produzione { background: var(--rw-blue-bg); color: var(--rw-blue); }
+  &.completato { background: var(--green-bg); color: #006644; }
+  &.spedito { background: var(--purple-bg); color: var(--purple); }
+  &.urgente { background: var(--red-bg); color: var(--red); }
+  &.alta { background: var(--rw-orange-bg); color: #BF5600; }
+  &.normale { background: var(--rw-blue-bg); color: var(--rw-blue); }
+  &.manual { background: var(--N20); color: var(--N300); }
+  &.ai-doc { background: var(--rw-orange-bg); color: var(--rw-orange); }
+  &.ai-email { background: var(--purple-bg); color: var(--purple); }
+
+  // Supabase order statuses
+  &.new { background: var(--N20); color: var(--N500); }
+  &.confirmed { background: var(--rw-blue-bg); color: var(--rw-blue); }
+  &.in_progress { background: var(--rw-orange-bg); color: #BF5600; }
+  &.completed { background: var(--green-bg); color: #006644; }
+  &.cancelled { background: var(--N20); color: var(--N300); }
+
+  // Schedule statuses
+  &.planned { background: var(--N20); color: var(--N500); }
+  &.delayed { background: var(--red-bg); color: var(--red); }
+
+  // Order line statuses
+  &.pending { background: var(--yellow-bg); color: #FF8B00; }
+  &.scheduled { background: var(--rw-blue-bg); color: var(--rw-blue); }
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--t);
+  font-family: inherit;
+  white-space: nowrap;
+  background: var(--N20);
+  color: var(--N500);
+  height: 32px;
+
+  &:hover { background: var(--N30); }
+
+  &.primary {
+    background: var(--rw-blue);
+    color: var(--N0);
+    &:hover { background: var(--rw-blue-dark); }
+  }
+
+  &.ai {
+    background: var(--rw-orange);
+    color: var(--N0);
+    &:hover { background: #d96a1e; }
+  }
+}

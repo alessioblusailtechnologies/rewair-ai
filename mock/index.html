@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReWAir - Smart Factory Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon"><i class="fas fa-wind"></i></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-page="home">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" data-page="orders">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Ordini</span>
+            </a>
+            <a href="#" class="nav-item" data-page="workforce">
+                <i class="fas fa-users"></i>
+                <span>Workforce</span>
+            </a>
+            <a href="#" class="nav-item" data-page="quality">
+                <i class="fas fa-shield-alt"></i>
+                <span>Quality</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-secondary">
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Report</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="user-avatar">MR</div>
+        </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <span class="topbar-brand">ReWAir</span>
+            <span class="topbar-sep">/</span>
+            <div class="topbar-sede" id="sedeSelector">
+                <button class="sede-btn" onclick="toggleSedeDropdown()">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span id="sedeLabel">Sede di Taranto</span>
+                    <i class="fas fa-chevron-down sede-arrow"></i>
+                </button>
+                <div class="sede-dropdown" id="sedeDropdown">
+                    <a href="#" class="sede-option active" onclick="switchSede('Taranto', this, event)">
+                        <i class="fas fa-check"></i>
+                        <div>
+                            <strong>Sede di Taranto</strong>
+                            <small>Italia — Stabilimento principale</small>
+                        </div>
+                    </a>
+                    <a href="#" class="sede-option" onclick="switchSede('Aalborg', this, event)">
+                        <i class="fas fa-check"></i>
+                        <div>
+                            <strong>Sede di Aalborg</strong>
+                            <small>Danimarca — Headquarters</small>
+                        </div>
+                    </a>
+                    <a href="#" class="sede-option" onclick="switchSede('Valencia', this, event)">
+                        <i class="fas fa-check"></i>
+                        <div>
+                            <strong>Sede di Valencia</strong>
+                            <small>Spagna — Produzione</small>
+                        </div>
+                    </a>
+                    <a href="#" class="sede-option" onclick="switchSede('Poznań', this, event)">
+                        <i class="fas fa-check"></i>
+                        <div>
+                            <strong>Sede di Poznań</strong>
+                            <small>Polonia — Produzione</small>
+                        </div>
+                    </a>
+                    <a href="#" class="sede-option" onclick="switchSede('Chennai', this, event)">
+                        <i class="fas fa-check"></i>
+                        <div>
+                            <strong>Sede di Chennai</strong>
+                            <small>India — Produzione</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-datetime" id="topbarDateTime"></span>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="main-content">
+
+        <!-- ==================== HOME PAGE ==================== -->
+        <section id="page-home" class="page active">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Stabilimento ReWAir Italia &mdash; Panoramica in tempo reale</p>
+                </div>
+                <div class="header-actions">
+                    <span class="live-badge"><span class="live-dot"></span> Live</span>
+                    <span class="date-display" id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-blue-100 text-blue-600"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">24</span>
+                        <span class="kpi-label">Ordini Attivi</span>
+                    </div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-green-100 text-green-600"><i class="fas fa-box"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">156</span>
+                        <span class="kpi-label">Kit Prodotti Oggi</span>
+                    </div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-purple-100 text-purple-600"><i class="fas fa-chart-line"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">94.2%</span>
+                        <span class="kpi-label">Efficienza Linea</span>
+                    </div>
+                    <span class="kpi-trend up"><i class="fas fa-arrow-up"></i> 2.1%</span>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-amber-100 text-amber-600"><i class="fas fa-star"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">99.1%</span>
+                        <span class="kpi-label">Quality Score</span>
+                    </div>
+                    <span class="kpi-trend down"><i class="fas fa-arrow-down"></i> 0.3%</span>
+                </div>
+            </div>
+
+            <!-- Floor Plan -->
+            <div class="floor-plan-container">
+                <div class="floor-plan-header">
+                    <h2><i class="fas fa-map"></i> Piantina Stabilimento</h2>
+                    <div class="floor-plan-legend">
+                        <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span> Operativo</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> In Attesa</span>
+                        <span class="legend-item"><span class="legend-dot" style="background:#ef4444"></span> Manutenzione</span>
+                    </div>
+                </div>
+                <div class="floor-plan-wrapper">
+                    <svg id="floorPlan" viewBox="0 0 1000 600" class="floor-plan-svg">
+                        <!-- Background -->
+                        <rect x="0" y="0" width="1000" height="600" fill="#f8fafc" rx="8"/>
+
+                        <!-- Grid lines -->
+                        <g stroke="#e2e8f0" stroke-width="0.5" opacity="0.5">
+                            <line x1="0" y1="100" x2="1000" y2="100"/>
+                            <line x1="0" y1="200" x2="1000" y2="200"/>
+                            <line x1="0" y1="300" x2="1000" y2="300"/>
+                            <line x1="0" y1="400" x2="1000" y2="400"/>
+                            <line x1="0" y1="500" x2="1000" y2="500"/>
+                            <line x1="200" y1="0" x2="200" y2="600"/>
+                            <line x1="400" y1="0" x2="400" y2="600"/>
+                            <line x1="600" y1="0" x2="600" y2="600"/>
+                            <line x1="800" y1="0" x2="800" y2="600"/>
+                        </g>
+
+                        <!-- MAGAZZINO MATERIE PRIME -->
+                        <g class="floor-zone" data-zone="warehouse-raw">
+                            <rect x="20" y="20" width="230" height="260" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="135" y="55" text-anchor="middle" class="zone-title">Magazzino</text>
+                            <text x="135" y="75" text-anchor="middle" class="zone-title">Materie Prime</text>
+                            <text x="135" y="105" text-anchor="middle" class="zone-status">&#x1f4e6; 342 rotoli fibra</text>
+                            <text x="135" y="125" text-anchor="middle" class="zone-status">&#x1f9f1; 89 pannelli core</text>
+                            <text x="135" y="155" text-anchor="middle" class="zone-workers">&#x1f477; 4 operatori</text>
+                            <circle cx="210" cy="40" r="8" fill="#22c55e"/>
+                        </g>
+
+                        <!-- AREA TAGLIO -->
+                        <g class="floor-zone" data-zone="cutting">
+                            <rect x="270" y="20" width="230" height="260" rx="8" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+                            <text x="385" y="55" text-anchor="middle" class="zone-title">Area Taglio</text>
+                            <text x="385" y="85" text-anchor="middle" class="zone-status">&#x2702;&#xfe0f; 3 tavoli CNC attivi</text>
+                            <text x="385" y="105" text-anchor="middle" class="zone-status">&#x1f4cb; Ordine #2024-089</text>
+                            <text x="385" y="135" text-anchor="middle" class="zone-workers">&#x1f477; 8 operatori</text>
+                            <circle cx="460" cy="40" r="8" fill="#22c55e"/>
+                            <!-- CNC machines -->
+                            <rect x="290" y="160" width="60" height="40" rx="4" fill="#86efac" stroke="#22c55e" stroke-width="1"/>
+                            <text x="320" y="184" text-anchor="middle" class="machine-label">CNC-1</text>
+                            <rect x="365" y="160" width="60" height="40" rx="4" fill="#86efac" stroke="#22c55e" stroke-width="1"/>
+                            <text x="395" y="184" text-anchor="middle" class="machine-label">CNC-2</text>
+                            <rect x="440" y="160" width="40" height="40" rx="4" fill="#fde68a" stroke="#f59e0b" stroke-width="1"/>
+                            <text x="460" y="184" text-anchor="middle" class="machine-label">CNC-3</text>
+                        </g>
+
+                        <!-- AREA KITTING -->
+                        <g class="floor-zone" data-zone="kitting">
+                            <rect x="520" y="20" width="230" height="260" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                            <text x="635" y="55" text-anchor="middle" class="zone-title">Area Kitting</text>
+                            <text x="635" y="85" text-anchor="middle" class="zone-status">&#x1f4e6; 6 stazioni attive</text>
+                            <text x="635" y="105" text-anchor="middle" class="zone-status">&#x1f4cb; Kit fibra di vetro 80m</text>
+                            <text x="635" y="135" text-anchor="middle" class="zone-workers">&#x1f477; 12 operatori</text>
+                            <circle cx="710" cy="40" r="8" fill="#22c55e"/>
+                            <!-- Kitting stations -->
+                            <rect x="540" y="160" width="30" height="30" rx="3" fill="#fde68a" stroke="#f59e0b"/>
+                            <rect x="580" y="160" width="30" height="30" rx="3" fill="#fde68a" stroke="#f59e0b"/>
+                            <rect x="620" y="160" width="30" height="30" rx="3" fill="#fde68a" stroke="#f59e0b"/>
+                            <rect x="660" y="160" width="30" height="30" rx="3" fill="#fde68a" stroke="#f59e0b"/>
+                            <rect x="700" y="160" width="30" height="30" rx="3" fill="#86efac" stroke="#22c55e"/>
+                            <rect x="540" y="200" width="30" height="30" rx="3" fill="#86efac" stroke="#22c55e"/>
+                        </g>
+
+                        <!-- UFFICI -->
+                        <g class="floor-zone" data-zone="offices">
+                            <rect x="770" y="20" width="210" height="120" rx="8" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+                            <text x="875" y="55" text-anchor="middle" class="zone-title">Uffici</text>
+                            <text x="875" y="80" text-anchor="middle" class="zone-status">&#x1f4bb; Direzione & Admin</text>
+                            <text x="875" y="105" text-anchor="middle" class="zone-workers">&#x1f468;&#x200d;&#x1f4bc; 6 persone</text>
+                        </g>
+
+                        <!-- QUALITY LAB -->
+                        <g class="floor-zone" data-zone="quality-lab">
+                            <rect x="770" y="160" width="210" height="120" rx="8" fill="#fce7f3" stroke="#ec4899" stroke-width="2"/>
+                            <text x="875" y="195" text-anchor="middle" class="zone-title">Lab. Qualit&agrave;</text>
+                            <text x="875" y="220" text-anchor="middle" class="zone-status">&#x1f52c; 2 ispezioni in corso</text>
+                            <text x="875" y="245" text-anchor="middle" class="zone-workers">&#x1f477; 3 operatori</text>
+                            <circle cx="940" cy="180" r="8" fill="#22c55e"/>
+                        </g>
+
+                        <!-- AREA CONFEZIONAMENTO -->
+                        <g class="floor-zone" data-zone="packaging">
+                            <rect x="20" y="300" width="350" height="280" rx="8" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+                            <text x="195" y="335" text-anchor="middle" class="zone-title">Area Confezionamento</text>
+                            <text x="195" y="365" text-anchor="middle" class="zone-status">&#x1f4e6; 4 linee imballaggio attive</text>
+                            <text x="195" y="385" text-anchor="middle" class="zone-status">&#x1f4cb; Ordine Vestas V-236</text>
+                            <text x="195" y="415" text-anchor="middle" class="zone-workers">&#x1f477; 10 operatori</text>
+                            <circle cx="330" cy="320" r="8" fill="#22c55e"/>
+                            <!-- Packaging lines -->
+                            <rect x="40" y="440" width="140" height="25" rx="4" fill="#d8b4fe" stroke="#a855f7"/>
+                            <text x="110" y="457" text-anchor="middle" class="machine-label">Linea Pack 1</text>
+                            <rect x="40" y="475" width="140" height="25" rx="4" fill="#d8b4fe" stroke="#a855f7"/>
+                            <text x="110" y="492" text-anchor="middle" class="machine-label">Linea Pack 2</text>
+                            <rect x="200" y="440" width="140" height="25" rx="4" fill="#d8b4fe" stroke="#a855f7"/>
+                            <text x="270" y="457" text-anchor="middle" class="machine-label">Linea Pack 3</text>
+                            <rect x="200" y="475" width="140" height="25" rx="4" fill="#fecaca" stroke="#ef4444"/>
+                            <text x="270" y="492" text-anchor="middle" class="machine-label">Linea Pack 4 &#x26a0;</text>
+                        </g>
+
+                        <!-- AREA SPEDIZIONE -->
+                        <g class="floor-zone" data-zone="shipping">
+                            <rect x="390" y="300" width="280" height="280" rx="8" fill="#ccfbf1" stroke="#14b8a6" stroke-width="2"/>
+                            <text x="530" y="335" text-anchor="middle" class="zone-title">Area Spedizione</text>
+                            <text x="530" y="365" text-anchor="middle" class="zone-status">&#x1f69a; 3 spedizioni oggi</text>
+                            <text x="530" y="385" text-anchor="middle" class="zone-status">&#x1f4e6; 12 pallet pronti</text>
+                            <text x="530" y="415" text-anchor="middle" class="zone-workers">&#x1f477; 5 operatori</text>
+                            <circle cx="630" cy="320" r="8" fill="#f59e0b"/>
+                            <!-- Loading docks -->
+                            <rect x="410" y="480" width="75" height="80" rx="4" fill="#99f6e4" stroke="#14b8a6"/>
+                            <text x="447" y="520" text-anchor="middle" class="machine-label">Dock 1</text>
+                            <text x="447" y="540" text-anchor="middle" class="zone-status">&#x1f69a;</text>
+                            <rect x="500" y="480" width="75" height="80" rx="4" fill="#99f6e4" stroke="#14b8a6"/>
+                            <text x="537" y="520" text-anchor="middle" class="machine-label">Dock 2</text>
+                            <text x="537" y="540" text-anchor="middle" class="zone-status">&#x1f69a;</text>
+                            <rect x="590" y="480" width="60" height="80" rx="4" fill="#e2e8f0" stroke="#94a3b8"/>
+                            <text x="620" y="525" text-anchor="middle" class="machine-label">Dock 3</text>
+                        </g>
+
+                        <!-- MAGAZZINO PRODOTTO FINITO -->
+                        <g class="floor-zone" data-zone="warehouse-finished">
+                            <rect x="690" y="300" width="290" height="280" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                            <text x="835" y="335" text-anchor="middle" class="zone-title">Magazzino</text>
+                            <text x="835" y="355" text-anchor="middle" class="zone-title">Prodotto Finito</text>
+                            <text x="835" y="385" text-anchor="middle" class="zone-status">&#x1f4e6; 89 kit pronti</text>
+                            <text x="835" y="405" text-anchor="middle" class="zone-status">&#x1f4cb; Cap. 85% utilizzata</text>
+                            <text x="835" y="435" text-anchor="middle" class="zone-workers">&#x1f477; 3 operatori</text>
+                            <circle cx="940" cy="320" r="8" fill="#22c55e"/>
+                            <!-- Storage racks -->
+                            <g transform="translate(710, 460)">
+                                <rect width="250" height="15" rx="2" fill="#93c5fd" stroke="#3b82f6" opacity="0.7"/>
+                                <rect y="20" width="250" height="15" rx="2" fill="#93c5fd" stroke="#3b82f6" opacity="0.7"/>
+                                <rect y="40" width="250" height="15" rx="2" fill="#93c5fd" stroke="#3b82f6" opacity="0.6"/>
+                                <rect y="60" width="180" height="15" rx="2" fill="#93c5fd" stroke="#3b82f6" opacity="0.5"/>
+                                <rect y="80" width="100" height="15" rx="2" fill="#93c5fd" stroke="#3b82f6" opacity="0.4"/>
+                            </g>
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ORDERS PAGE ==================== -->
+        <section id="page-orders" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Gestione Ordini</h1>
+                    <p class="page-subtitle">Crea, gestisci e monitora gli ordini di produzione</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="openModal('modal-manual-order')">
+                        <i class="fas fa-plus"></i> Nuovo Ordine
+                    </button>
+                    <button class="btn btn-ai" onclick="openModal('modal-ai-document')">
+                        <i class="fas fa-file-alt"></i> Genera da Documento AI
+                    </button>
+                    <button class="btn btn-ai" onclick="openModal('modal-ai-email')">
+                        <i class="fas fa-envelope"></i> Genera da Email AI
+                    </button>
+                </div>
+            </div>
+
+            <!-- Orders Filter -->
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Cerca ordini..." id="orderSearch" oninput="filterOrders()">
+                </div>
+                <div class="filter-group">
+                    <select id="filterStatus" onchange="filterOrders()">
+                        <option value="">Tutti gli stati</option>
+                        <option value="in-attesa">In Attesa</option>
+                        <option value="in-produzione">In Produzione</option>
+                        <option value="completato">Completato</option>
+                        <option value="spedito">Spedito</option>
+                    </select>
+                    <select id="filterClient" onchange="filterOrders()">
+                        <option value="">Tutti i clienti</option>
+                        <option value="Vestas">Vestas</option>
+                        <option value="Siemens Gamesa">Siemens Gamesa</option>
+                        <option value="Nordex">Nordex</option>
+                        <option value="LM Wind Power">LM Wind Power</option>
+                        <option value="GE Vernova">GE Vernova</option>
+                    </select>
+                    <select id="filterType" onchange="filterOrders()">
+                        <option value="">Tutti i tipi</option>
+                        <option value="fibra">Kit Fibra di Vetro</option>
+                        <option value="core">Kit Core</option>
+                        <option value="vacuum">Kit Vacuum Bagging</option>
+                        <option value="rinforzo">Kit Rinforzo</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="table-container">
+                <table class="data-table" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>ID Ordine</th>
+                            <th>Cliente</th>
+                            <th>Tipo Kit</th>
+                            <th>Descrizione</th>
+                            <th>Qtà</th>
+                            <th>Priorità</th>
+                            <th>Stato</th>
+                            <th>Consegna</th>
+                            <th>Origine</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ==================== WORKFORCE PLANNING PAGE ==================== -->
+        <section id="page-workforce" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Workforce Planning</h1>
+                    <p class="page-subtitle">Pianificazione risorse e calendario produzione</p>
+                </div>
+                <div class="header-actions">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="gantt" onclick="switchWorkforceView('gantt')">
+                            <i class="fas fa-bars-staggered"></i> Gantt
+                        </button>
+                        <button class="view-btn" data-view="calendar" onclick="switchWorkforceView('calendar')">
+                            <i class="fas fa-calendar"></i> Calendario
+                        </button>
+                        <button class="view-btn" data-view="table" onclick="switchWorkforceView('table')">
+                            <i class="fas fa-table"></i> Tabella
+                        </button>
+                    </div>
+                    <button class="btn btn-ai" onclick="toggleAIPanel()">
+                        <i class="fas fa-robot"></i> Assistente AI
+                    </button>
+                </div>
+            </div>
+
+            <div class="workforce-layout">
+                <!-- Main Content -->
+                <div class="workforce-main">
+                    <!-- Gantt View -->
+                    <div id="view-gantt" class="workforce-view active">
+                        <div class="gantt-controls">
+                            <button class="btn btn-sm" onclick="shiftGanttWeek(-1)"><i class="fas fa-chevron-left"></i></button>
+                            <span id="ganttWeekLabel" class="gantt-week-label">Settimana corrente</span>
+                            <button class="btn btn-sm" onclick="shiftGanttWeek(1)"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                        <div class="gantt-container" id="ganttChart">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Calendar View -->
+                    <div id="view-calendar" class="workforce-view">
+                        <div class="calendar-container" id="calendarView">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="view-table" class="workforce-view">
+                        <div class="table-container">
+                            <table class="data-table" id="workforceTable">
+                                <thead>
+                                    <tr>
+                                        <th>Operatore</th>
+                                        <th>Squadra</th>
+                                        <th>Turno</th>
+                                        <th>Ordine Assegnato</th>
+                                        <th>Area</th>
+                                        <th>Stato</th>
+                                        <th>Ore Oggi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workforceTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Panel -->
+                <div id="aiPanel" class="ai-panel">
+                    <div class="ai-panel-header">
+                        <h3><i class="fas fa-robot"></i> AI Planning Assistant</h3>
+                        <button class="btn-close" onclick="toggleAIPanel()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="ai-chat" id="aiChat">
+                        <div class="ai-message bot">
+                            <div class="ai-avatar"><i class="fas fa-robot"></i></div>
+                            <div class="ai-bubble">
+                                Ciao! Sono il tuo assistente AI per la pianificazione. Posso aiutarti a:
+                                <ul>
+                                    <li>Ottimizzare l'allocazione del personale</li>
+                                    <li>Identificare colli di bottiglia</li>
+                                    <li>Suggerire redistribuzioni del carico</li>
+                                    <li>Prevedere ritardi</li>
+                                </ul>
+                                Come posso aiutarti?
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-suggestions">
+                        <button class="suggestion-chip" onclick="sendAIMessage('Ottimizza allocazione personale per questa settimana')">Ottimizza allocazione</button>
+                        <button class="suggestion-chip" onclick="sendAIMessage('Ci sono colli di bottiglia nella produzione?')">Trova colli di bottiglia</button>
+                        <button class="suggestion-chip" onclick="sendAIMessage('Prevedi ritardi per gli ordini in corso')">Prevedi ritardi</button>
+                    </div>
+                    <div class="ai-input-area">
+                        <input type="text" id="aiInput" placeholder="Chiedi all'AI..." onkeypress="if(event.key==='Enter')sendAIMessage()">
+                        <button class="btn btn-ai btn-sm" onclick="sendAIMessage()"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== QUALITY CONTROL PAGE ==================== -->
+        <section id="page-quality" class="page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Quality Control</h1>
+                    <p class="page-subtitle">Controllo qualità AI-powered per prevenire resi</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-ai" onclick="runAIQualityCheck()">
+                        <i class="fas fa-brain"></i> Analisi AI Completa
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quality KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-green-100 text-green-600"><i class="fas fa-check-circle"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">47</span>
+                        <span class="kpi-label">Ispezioni Oggi</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-red-100 text-red-600"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">3</span>
+                        <span class="kpi-label">Problemi Rilevati</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-blue-100 text-blue-600"><i class="fas fa-percentage"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">99.1%</span>
+                        <span class="kpi-label">Tasso Conformit&agrave;</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon bg-purple-100 text-purple-600"><i class="fas fa-undo"></i></div>
+                    <div class="kpi-content">
+                        <span class="kpi-value">0</span>
+                        <span class="kpi-label">Resi Questo Mese</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Quality Alert -->
+            <div id="aiQualityAlert" class="ai-quality-alert" style="display:none;">
+                <div class="alert-header">
+                    <i class="fas fa-brain"></i>
+                    <span>Analisi AI in corso...</span>
+                </div>
+                <div class="alert-body" id="aiQualityAlertBody">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Quality Checks -->
+            <div class="quality-grid">
+                <!-- Active Issues -->
+                <div class="quality-section">
+                    <h3 class="section-title"><i class="fas fa-exclamation-circle text-red-500"></i> Problemi Attivi</h3>
+                    <div id="activeIssues" class="quality-issues-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Recent Inspections -->
+                <div class="quality-section">
+                    <h3 class="section-title"><i class="fas fa-clipboard-check text-green-500"></i> Ispezioni Recenti</h3>
+                    <div id="recentInspections" class="quality-issues-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Predictions -->
+            <div class="ai-predictions-panel">
+                <div class="predictions-header">
+                    <h3><i class="fas fa-crystal-ball"></i> Predizioni AI &mdash; Rischio Qualit&agrave;</h3>
+                </div>
+                <div id="aiPredictions" class="predictions-list">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Manual Order Modal -->
+    <div id="modal-manual-order" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Nuovo Ordine Manuale</h2>
+                <button class="btn-close" onclick="closeModal('modal-manual-order')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="manualOrderForm" onsubmit="submitManualOrder(event)">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Cliente</label>
+                            <select required>
+                                <option value="">Seleziona cliente...</option>
+                                <option>Vestas</option>
+                                <option>Siemens Gamesa</option>
+                                <option>Nordex</option>
+                                <option>LM Wind Power</option>
+                                <option>GE Vernova</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo Kit</label>
+                            <select required>
+                                <option value="">Seleziona tipo...</option>
+                                <option>Kit Fibra di Vetro</option>
+                                <option>Kit Core Balsa/PET</option>
+                                <option>Kit Vacuum Bagging</option>
+                                <option>Kit Rinforzo Strutturale</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Descrizione</label>
+                            <input type="text" placeholder="Es: Kit fibra pala V-236 15MW" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Quantit&agrave;</label>
+                            <input type="number" min="1" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Priorit&agrave;</label>
+                            <select>
+                                <option value="normale">Normale</option>
+                                <option value="alta">Alta</option>
+                                <option value="urgente">Urgente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Consegna</label>
+                            <input type="date" required>
+                        </div>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Note</label>
+                        <textarea rows="3" placeholder="Note aggiuntive..."></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('modal-manual-order')">Annulla</button>
+                        <button type="submit" class="btn btn-primary">Crea Ordine</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Document Modal -->
+    <div id="modal-ai-document" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2><i class="fas fa-brain"></i> Genera Ordine da Documento</h2>
+                <button class="btn-close" onclick="closeModal('modal-ai-document')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="aiDocStep1" class="ai-step">
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Trascina qui il documento o <strong>clicca per selezionare</strong></p>
+                        <span class="upload-hint">Supportati: PDF, Excel, Word, immagini</span>
+                        <input type="file" id="fileInput" style="display:none" accept=".pdf,.xlsx,.xls,.doc,.docx,.png,.jpg">
+                    </div>
+                    <div class="ai-upload-actions">
+                        <button class="btn btn-ai" onclick="simulateAIDocumentProcess()">
+                            <i class="fas fa-magic"></i> Processa con AI
+                        </button>
+                    </div>
+                </div>
+                <div id="aiDocStep2" class="ai-step" style="display:none;">
+                    <div class="ai-processing">
+                        <div class="ai-spinner"></div>
+                        <p class="ai-processing-text">L'AI sta analizzando il documento...</p>
+                        <div class="ai-progress">
+                            <div class="ai-progress-bar" id="aiDocProgress"></div>
+                        </div>
+                        <div class="ai-steps-log" id="aiDocLog"></div>
+                    </div>
+                </div>
+                <div id="aiDocStep3" class="ai-step" style="display:none;">
+                    <div class="ai-result">
+                        <div class="ai-result-header">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span>Ordine estratto con successo!</span>
+                        </div>
+                        <div class="ai-extracted-data" id="aiExtractedData">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary" onclick="closeModal('modal-ai-document')">Annulla</button>
+                            <button class="btn btn-primary" onclick="confirmAIOrder('document')">Conferma e Crea Ordine</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Email Modal -->
+    <div id="modal-ai-email" class="modal-overlay">
+        <div class="modal modal-lg">
+            <div class="modal-header">
+                <h2><i class="fas fa-brain"></i> Genera Ordini da Email Inbox</h2>
+                <button class="btn-close" onclick="closeModal('modal-ai-email')"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="emailStep1" class="ai-step">
+                    <p class="mb-4 text-gray-600">L'AI analizzer&agrave; le email recenti per identificare richieste d'ordine e generare automaticamente gli ordini.</p>
+                    <div class="email-inbox-mock">
+                        <div class="email-item" data-selected="true">
+                            <input type="checkbox" checked>
+                            <div class="email-content">
+                                <div class="email-from">Lars Jensen &lt;lars.jensen@vestas.com&gt;</div>
+                                <div class="email-subject">RE: Urgent - Additional V-236 blade kits needed for Q2</div>
+                                <div class="email-preview">Hi Marco, following up on our call. We need 48 additional fiberglass kits for the V-236 15MW blades, delivery by April 15th. Specs attached...</div>
+                                <div class="email-date">14 Mar 2026</div>
+                            </div>
+                        </div>
+                        <div class="email-item" data-selected="true">
+                            <input type="checkbox" checked>
+                            <div class="email-content">
+                                <div class="email-from">Petra Schmidt &lt;p.schmidt@siemensgamesa.com&gt;</div>
+                                <div class="email-subject">PO #SG-2026-1847 - Core kits for SG 14-236 DD</div>
+                                <div class="email-preview">Dear ReWAir team, please find attached our PO for 120 balsa core kits for the SG 14-236 DD nacelle program. Standard delivery terms apply...</div>
+                                <div class="email-date">13 Mar 2026</div>
+                            </div>
+                        </div>
+                        <div class="email-item">
+                            <input type="checkbox">
+                            <div class="email-content">
+                                <div class="email-from">Tomasz Kowalski &lt;t.kowalski@nordex.com&gt;</div>
+                                <div class="email-subject">Inquiry - Vacuum bagging consumables for Delta4000</div>
+                                <div class="email-preview">Hello, we're evaluating suppliers for vacuum bagging kits for our Delta4000 platform. Could you provide a quote for 200 sets with delivery in May?...</div>
+                                <div class="email-date">12 Mar 2026</div>
+                            </div>
+                        </div>
+                        <div class="email-item">
+                            <input type="checkbox">
+                            <div class="email-content">
+                                <div class="email-from">Ananya Patel &lt;a.patel@lmwindpower.com&gt;</div>
+                                <div class="email-subject">FW: Structural reinforcement kits - Updated specifications</div>
+                                <div class="email-preview">Marco, LM Wind Power has updated the specs for the 107m blade reinforcement kits. Please review the attached BOM and confirm if you can deliver 30 sets by...</div>
+                                <div class="email-date">11 Mar 2026</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ai-upload-actions">
+                        <button class="btn btn-ai" onclick="simulateAIEmailProcess()">
+                            <i class="fas fa-magic"></i> Analizza Email Selezionate con AI
+                        </button>
+                    </div>
+                </div>
+                <div id="emailStep2" class="ai-step" style="display:none;">
+                    <div class="ai-processing">
+                        <div class="ai-spinner"></div>
+                        <p class="ai-processing-text">L'AI sta analizzando le email...</p>
+                        <div class="ai-progress">
+                            <div class="ai-progress-bar" id="aiEmailProgress"></div>
+                        </div>
+                        <div class="ai-steps-log" id="aiEmailLog"></div>
+                    </div>
+                </div>
+                <div id="emailStep3" class="ai-step" style="display:none;">
+                    <div class="ai-result">
+                        <div class="ai-result-header">
+                            <i class="fas fa-check-circle text-green-500"></i>
+                            <span>Ordini estratti dalle email!</span>
+                        </div>
+                        <div id="aiEmailExtractedData">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary" onclick="closeModal('modal-ai-email')">Annulla</button>
+                            <button class="btn btn-primary" onclick="confirmAIOrder('email')">Conferma e Crea Ordini</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage"></span>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

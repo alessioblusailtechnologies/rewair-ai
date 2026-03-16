@@ -1,0 +1,268 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Workforce Planning</h1>
+    <p class="page-subtitle">Pianificazione produzione e gestione operatori</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn primary" (click)="openModal()"><i class="fas fa-plus"></i> Nuova Schedulazione</button>
+  </div>
+</div>
+
+<!-- Page-level tabs -->
+<div class="page-tabs">
+  <button class="page-tab" [class.active]="activeView === 'schedule'" (click)="activeView = 'schedule'">
+    <i class="fas fa-calendar-alt"></i> Schedule Produzione
+    <span class="tab-count">{{ schedule.length }}</span>
+  </button>
+  <button class="page-tab" [class.active]="activeView === 'workers'" (click)="activeView = 'workers'">
+    <i class="fas fa-hard-hat"></i> Operatori
+    <span class="tab-count">{{ workers.length }}</span>
+  </button>
+</div>
+
+<!-- ============ SCHEDULE VIEW ============ -->
+@if (activeView === 'schedule') {
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label class="filter-label">Da</label>
+      <input type="date" [(ngModel)]="scheduleFrom" (ngModelChange)="loadSchedule()">
+    </div>
+    <div class="filter-group">
+      <label class="filter-label">A</label>
+      <input type="date" [(ngModel)]="scheduleTo" (ngModelChange)="loadSchedule()">
+    </div>
+    <div class="filter-group">
+      <select [(ngModel)]="filterPhase" (ngModelChange)="loadSchedule()">
+        <option value="">Tutte le fasi</option>
+        <option value="cutting">Taglio</option>
+        <option value="assembly">Assemblaggio</option>
+        <option value="tagging">Tagging</option>
+      </select>
+    </div>
+  </div>
+
+  @if (loadingSchedule) {
+    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento schedule...</div>
+  } @else if (schedule.length === 0) {
+    <div class="empty-card">
+      <div class="empty-icon"><i class="fas fa-calendar-alt"></i></div>
+      <h3>Nessuna schedulazione trovata</h3>
+      <p>Non ci sono attività pianificate per il periodo selezionato.</p>
+    </div>
+  } @else {
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Turno</th>
+            <th>Fase</th>
+            <th>Macchina</th>
+            <th>Ordine</th>
+            <th>Prodotto</th>
+            <th>Qtà Plan.</th>
+            <th>Operatori Assegnati</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of schedule; track s.id) {
+            <tr>
+              <td>{{ s.planned_date | date:'dd MMM':'':'it' }}</td>
+              <td><span class="badge shift">{{ s.shift?.name }}</span></td>
+              <td><span class="badge phase" [class]="s.phase_code">{{ phaseLabel(s.phase_code) }}</span></td>
+              <td><strong>{{ s.machine?.name }}</strong></td>
+              <td>{{ s.order_line?.order?.order_number }}</td>
+              <td>{{ s.order_line?.product?.name }}</td>
+              <td>{{ s.planned_quantity }}</td>
+              <td>
+                @if (assignmentCount(s) > 0) {
+                  <div class="assignment-list">
+                    @for (a of s.assignments; track a.id) {
+                      <span class="assignment-tag">{{ a.worker?.first_name }} {{ a.worker?.last_name }}</span>
+                    }
+                  </div>
+                } @else {
+                  <span class="no-assign">Nessuno</span>
+                }
+              </td>
+              <td><span class="badge" [class]="s.status">{{ scheduleStatusLabel(s.status) }}</span></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+<!-- ============ WORKERS VIEW ============ -->
+@if (activeView === 'workers') {
+  <div class="filter-bar">
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Cerca operatore..." [(ngModel)]="workerSearch" (ngModelChange)="applyWorkerFilters()">
+    </div>
+    <div class="filter-group">
+      <select [(ngModel)]="filterContract" (ngModelChange)="applyWorkerFilters()">
+        <option value="">Tutti i contratti</option>
+        <option value="permanent">Indeterminato</option>
+        <option value="temporary">Determinato</option>
+        <option value="agency">Interinale</option>
+      </select>
+    </div>
+  </div>
+
+  @if (loadingWorkers) {
+    <div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Caricamento operatori...</div>
+  } @else {
+    <div class="workers-stats">
+      <div class="stat-card">
+        <span class="stat-value">{{ workers.length }}</span>
+        <span class="stat-label">Totale</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ countByContract('permanent') }}</span>
+        <span class="stat-label">Indeterminato</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ countByContract('temporary') }}</span>
+        <span class="stat-label">Determinato</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value">{{ countByContract('agency') }}</span>
+        <span class="stat-label">Interinale</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Codice</th>
+            <th>Nome</th>
+            <th>Cognome</th>
+            <th>Contratto</th>
+            <th>Data Assunzione</th>
+            <th>Ore/Sett.</th>
+            <th>Costo Orario</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (w of filteredWorkers; track w.id) {
+            <tr>
+              <td><strong>{{ w.employee_code }}</strong></td>
+              <td>{{ w.first_name }}</td>
+              <td>{{ w.last_name }}</td>
+              <td><span class="badge" [class]="w.contract_type">{{ contractLabel(w.contract_type) }}</span></td>
+              <td>{{ w.hire_date | date:'dd MMM yyyy':'':'it' }}</td>
+              <td>{{ w.weekly_hours }}h</td>
+              <td>€{{ w.hourly_cost | number:'1.2-2' }}</td>
+            </tr>
+          }
+          @empty {
+            <tr><td colspan="7" class="empty-state">Nessun operatore trovato</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+}
+
+<!-- ============ MODAL: NUOVA SCHEDULAZIONE ============ -->
+@if (showModal) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Nuova Schedulazione</h2>
+        <button class="modal-close" (click)="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Ordine</label>
+            <select [(ngModel)]="formOrderId" (ngModelChange)="onOrderChange()">
+              <option value="">Seleziona ordine...</option>
+              @for (o of orders; track o.id) {
+                <option [value]="o.id">{{ o.order_number }} — {{ o.customer?.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Riga Ordine</label>
+            <select [(ngModel)]="form.order_line_id" [disabled]="!formOrderId">
+              <option value="">Seleziona riga...</option>
+              @for (l of formOrderLines; track l.id) {
+                <option [value]="l.id">#{{ l.line_number }} — {{ l.product?.name || l.product_id }} (qtà {{ l.quantity }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label>Fase</label>
+            <select [(ngModel)]="form.phase_code" (ngModelChange)="onPhaseChange()">
+              <option value="">Seleziona fase...</option>
+              <option value="cutting">Taglio</option>
+              <option value="assembly">Assemblaggio</option>
+              <option value="tagging">Tagging</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Macchina</label>
+            <select [(ngModel)]="form.machine_id" [disabled]="!form.phase_code">
+              <option value="">Seleziona macchina...</option>
+              @for (m of filteredMachines; track m.id) {
+                <option [value]="m.id">{{ m.name }} ({{ m.machine_type }})</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row three">
+          <div class="form-field">
+            <label>Turno</label>
+            <select [(ngModel)]="form.shift_type_id">
+              <option value="">Seleziona turno...</option>
+              @for (s of shifts; track s.id) {
+                <option [value]="s.id">{{ s.name }} ({{ s.start_time }}–{{ s.end_time }})</option>
+              }
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Data</label>
+            <input type="date" [(ngModel)]="form.planned_date">
+          </div>
+          <div class="form-field">
+            <label>Quantità</label>
+            <input type="number" min="1" [(ngModel)]="form.planned_quantity">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <label class="section-label">Assegna Operatori <span class="hint">({{ form.selectedWorkerIds.length }} selezionati)</span></label>
+          <div class="workers-grid">
+            @for (w of workers; track w.id) {
+              <div class="worker-chip" [class.selected]="isWorkerSelected(w.id)" (click)="toggleWorker(w.id)">
+                <i class="fas" [class.fa-check-circle]="isWorkerSelected(w.id)" [class.fa-circle]="!isWorkerSelected(w.id)"></i>
+                <span>{{ w.employee_code }} — {{ w.first_name }} {{ w.last_name }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn" (click)="closeModal()">Annulla</button>
+        <button class="btn primary" [disabled]="!canSave || savingSchedule" (click)="saveSchedule()">
+          @if (savingSchedule) {
+            <i class="fas fa-spinner fa-spin"></i> Salvataggio...
+          } @else {
+            <i class="fas fa-check"></i> Crea Schedulazione
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}
