@@ -5,7 +5,7 @@
   </div>
   <div class="header-actions">
     <button class="btn primary" (click)="openModal()"><i class="fas fa-plus"></i> Nuovo Ordine</button>
-    <button class="btn ai"><i class="fas fa-file-alt"></i> Genera da Documento AI</button>
+    <button class="btn ai" (click)="openAIModal()"><i class="fas fa-file-alt"></i> Genera da Documento AI</button>
     <button class="btn ai"><i class="fas fa-envelope"></i> Genera da Email AI</button>
   </div>
 </div>
@@ -82,6 +82,123 @@
         }
       </tbody>
     </table>
+  </div>
+}
+
+<!-- ============ MODAL: AI DOCUMENT ============ -->
+@if (showAIModal) {
+  <div class="modal-overlay" (click)="closeAIModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2><i class="fas fa-brain ai-icon"></i> Genera Ordine da Documento</h2>
+        <button class="modal-close" (click)="closeAIModal()"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- STEP: Upload -->
+        @if (aiStep === 'upload') {
+          <div class="upload-area" (click)="fileInput.click()">
+            <input type="file" #fileInput (change)="onAIFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg,.txt,.csv" style="display:none">
+            @if (aiFile) {
+              <i class="fas fa-file-check"></i>
+              <p><strong>{{ aiFile.name }}</strong></p>
+              <span class="upload-hint">{{ (aiFile.size / 1024).toFixed(0) }} KB — Clicca per cambiare</span>
+            } @else {
+              <i class="fas fa-cloud-upload-alt"></i>
+              <p>Trascina o clicca per caricare un documento</p>
+              <span class="upload-hint">PDF, immagini, testo — Max 10MB</span>
+            }
+          </div>
+          @if (aiError) {
+            <div class="ai-error"><i class="fas fa-exclamation-circle"></i> {{ aiError }}</div>
+          }
+          <div class="modal-footer">
+            <button class="btn" (click)="closeAIModal()">Annulla</button>
+            <button class="btn ai" [disabled]="!aiFile" (click)="processDocument()">
+              <i class="fas fa-magic"></i> Analizza con AI
+            </button>
+          </div>
+        }
+
+        <!-- STEP: Processing -->
+        @if (aiStep === 'processing') {
+          <div class="ai-processing">
+            <div class="ai-spinner"></div>
+            <p class="ai-processing-title">Claude sta analizzando il documento...</p>
+            <p class="ai-processing-sub">Estrazione dati ordine in corso</p>
+          </div>
+        }
+
+        <!-- STEP: Preview -->
+        @if (aiStep === 'preview' && aiResult) {
+          <div class="ai-result-header">
+            <i class="fas fa-check-circle"></i> Ordine estratto con successo
+            <span class="ai-confidence">Confidenza: {{ (aiResult.confidence * 100).toFixed(0) }}%</span>
+          </div>
+          <div class="ai-summary">{{ aiResult.raw_summary }}</div>
+
+          <div class="ai-fields">
+            <div class="ai-field">
+              <span class="ai-label">Cliente</span>
+              <span class="ai-value" [class.unresolved]="!aiResult.customer_id">
+                {{ aiResult.customer_name }}
+                @if (!aiResult.customer_id) { <i class="fas fa-exclamation-triangle" title="Cliente non trovato nel DB"></i> }
+              </span>
+            </div>
+            @if (aiResult.order_number) {
+              <div class="ai-field">
+                <span class="ai-label">N° Ordine</span>
+                <span class="ai-value">{{ aiResult.order_number }}</span>
+              </div>
+            }
+            @if (aiResult.order_date) {
+              <div class="ai-field">
+                <span class="ai-label">Data Ordine</span>
+                <span class="ai-value">{{ aiResult.order_date }}</span>
+              </div>
+            }
+            @if (aiResult.requested_delivery_date) {
+              <div class="ai-field">
+                <span class="ai-label">Consegna</span>
+                <span class="ai-value">{{ aiResult.requested_delivery_date }}</span>
+              </div>
+            }
+            <div class="ai-field">
+              <span class="ai-label">Priorità</span>
+              <span class="ai-value">{{ aiResult.priority }}</span>
+            </div>
+          </div>
+
+          <div class="ai-lines-title">Righe Ordine ({{ aiResult.lines?.length || 0 }})</div>
+          <div class="ai-lines">
+            @for (line of aiResult.lines; track $index) {
+              <div class="ai-line" [class.unresolved]="!line.product_id">
+                <span class="ai-line-product">
+                  {{ line.product_sku || '' }} {{ line.product_name }}
+                  @if (!line.product_id) { <i class="fas fa-exclamation-triangle" title="Prodotto non trovato nel DB"></i> }
+                </span>
+                <span class="ai-line-qty">x{{ line.quantity }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn" (click)="closeAIModal()">Annulla</button>
+            <button class="btn" (click)="aiStep = 'upload'"><i class="fas fa-redo"></i> Riprova</button>
+            @if (!aiResult.customer_id) {
+              <div class="ai-error"><i class="fas fa-exclamation-circle"></i> Cliente non trovato nel database. Impossibile creare l'ordine automaticamente.</div>
+            }
+            <button class="btn primary" [disabled]="!aiResult.customer_id || !hasResolvableLines() || saving" (click)="confirmAIOrder()">
+              @if (saving) {
+                <i class="fas fa-spinner fa-spin"></i> Creazione...
+              } @else {
+                <i class="fas fa-check"></i> Conferma e Crea Ordine
+              }
+            </button>
+          </div>
+        }
+      </div>
+    </div>
   </div>
 }
 

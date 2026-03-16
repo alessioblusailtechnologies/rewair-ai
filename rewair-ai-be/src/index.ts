@@ -10,6 +10,7 @@ import productsRoutes from './routes/products.routes';
 import ordersRoutes from './routes/orders.routes';
 import scheduleRoutes from './routes/schedule.routes';
 import productionRoutes from './routes/production.routes';
+import aiRoutes from './routes/ai.routes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/products', productsRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/production', productionRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

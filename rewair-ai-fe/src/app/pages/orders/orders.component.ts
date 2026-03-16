@@ -101,7 +101,80 @@ export class OrdersComponent implements OnInit {
     this.api.deleteOrder(order.id).subscribe(() => this.loadData());
   }
 
-  // ==================== Modal ====================
+  // ==================== AI Document Modal ====================
+  showAIModal = false;
+  aiStep: 'upload' | 'processing' | 'preview' = 'upload';
+  aiFile: File | null = null;
+  aiResult: any = null;
+  aiError = '';
+
+  openAIModal() {
+    this.showAIModal = true;
+    this.aiStep = 'upload';
+    this.aiFile = null;
+    this.aiResult = null;
+    this.aiError = '';
+  }
+
+  closeAIModal() { this.showAIModal = false; }
+
+  onAIFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files?.length) {
+      this.aiFile = input.files[0];
+    }
+  }
+
+  processDocument() {
+    if (!this.aiFile) return;
+    this.aiStep = 'processing';
+    this.aiError = '';
+
+    this.api.extractOrderFromDocument(this.aiFile).subscribe({
+      next: result => {
+        this.aiResult = result;
+        this.aiStep = 'preview';
+      },
+      error: err => {
+        this.aiError = err?.error?.error || 'Errore durante l\'estrazione AI.';
+        this.aiStep = 'upload';
+      },
+    });
+  }
+
+  hasResolvableLines(): boolean {
+    return (this.aiResult?.lines || []).some((l: any) => l.product_id);
+  }
+
+  confirmAIOrder() {
+    if (!this.aiResult) return;
+    this.saving = true;
+
+    const lines = (this.aiResult.lines || [])
+      .filter((l: any) => l.product_id)
+      .map((l: any, i: number) => ({
+        line_number: i + 1,
+        product_id: l.product_id,
+        quantity: l.quantity,
+        due_date: l.due_date || this.aiResult.requested_delivery_date,
+      }));
+
+    this.api.createOrder({
+      order_number: this.aiResult.order_number || `AI-${Date.now()}`,
+      customer_id: this.aiResult.customer_id,
+      order_date: this.aiResult.order_date || new Date().toISOString().split('T')[0],
+      requested_delivery_date: this.aiResult.requested_delivery_date,
+      priority: this.aiResult.priority || 5,
+      status: 'new',
+      notes: `[AI] ${this.aiResult.raw_summary || 'Generato da documento'}`,
+      lines,
+    }).subscribe({
+      next: () => { this.saving = false; this.closeAIModal(); this.loadData(); },
+      error: () => this.saving = false,
+    });
+  }
+
+  // ==================== Manual Order Modal ====================
   openModal() {
     this.showModal = true;
     const today = new Date().toISOString().split('T')[0];

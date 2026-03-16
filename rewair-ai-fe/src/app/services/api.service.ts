@@ -101,6 +101,13 @@ export class ApiService {
     return this.http.delete<void>(`${this.url}/schedule/assignments/${id}`);
   }
 
+  // --- AI ---
+  extractOrderFromDocument(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.url}/ai/extract-order`, formData);
+  }
+
   // --- Order Lines (for schedule form) ---
   getOrderLines(orderId: string): Observable<OrderLine[]> {
     return this.http.get<OrderLine[]>(`${this.url}/orders/${orderId}/lines`);
