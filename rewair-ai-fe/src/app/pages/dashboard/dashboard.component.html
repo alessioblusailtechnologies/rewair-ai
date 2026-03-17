@@ -1,14 +1,161 @@
 <div class="page-header">
   <div>
-    <h1 class="page-title">Dashboard</h1>
+    <h1 class="page-title">Home</h1>
     <p class="page-subtitle">Stabilimento ReWAir — Panoramica in tempo reale</p>
-  </div>
-  <div class="header-actions">
-    <span class="live-badge"><span class="live-dot"></span> Live</span>
   </div>
 </div>
 
-<!-- AI Suggestions -->
+<!-- ============ FACTORY FLOOR PLAN ============ -->
+<div class="floor-section">
+  <div class="plant">
+    <span class="live-badge"><span class="live-dot"></span> Live</span>
+
+    <div class="u-layout">
+      <!-- TOP ROW: Ingresso → Taglio -->
+      <div class="u-top">
+        <div class="station" [class]="stationIngresso.colorClass">
+          <div class="station-head">
+            <span class="station-num">{{ stationIngresso.num }}</span>
+            <span class="station-icon">{{ stationIngresso.icon }}</span>
+            <span class="station-title">{{ stationIngresso.title }}</span>
+          </div>
+          <div class="orders-label">Ordini in ingresso <span class="count">{{ stationIngresso.orders.length }}</span></div>
+          <div class="orders">
+            @for (o of stationIngresso.orders; track o.order_number) {
+              <div class="order">
+                <span class="o-id">{{ o.order_number }}</span>
+                <span class="o-client">{{ o.customer }}</span>
+                @if (o.quantity) { <span class="o-pcs">{{ o.quantity }} kit</span> }
+              </div>
+            }
+            @empty { <div class="order-empty">Nessun ordine</div> }
+          </div>
+        </div>
+
+        <div class="arrow-col"><span class="mini-arrow">&#10142;</span></div>
+
+        <div class="station" [class]="stationTaglio.colorClass">
+          <div class="station-head">
+            <span class="station-num">{{ stationTaglio.num }}</span>
+            <span class="station-icon">{{ stationTaglio.icon }}</span>
+            <span class="station-title">{{ stationTaglio.title }}</span>
+          </div>
+          <div class="machines-label">Macchine</div>
+          <div class="machines">
+            @for (m of stationTaglio.machines; track m.code) {
+              <div class="machine"><span class="m-dot" [class]="m.status"></span><span class="m-name">{{ m.name }}</span></div>
+            }
+          </div>
+          <div class="orders-label">Ordini in fase <span class="count">{{ stationTaglio.orders.length }}</span></div>
+          <div class="orders">
+            @for (o of stationTaglio.orders; track o.order_number) {
+              <div class="order">
+                <span class="o-id">{{ o.order_number }}</span>
+                <span class="o-client">{{ o.customer }}</span>
+                <span class="o-pcs">{{ o.quantity }} kit</span>
+                <div class="o-progress"><div class="bar" [style.width.%]="o.pct"></div></div>
+              </div>
+            }
+            @empty { <div class="order-empty">Nessun ordine</div> }
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Assemblaggio (junction) -->
+      <div class="u-right">
+        <div class="arrow-col vertical"><span class="mini-arrow">&#10142;</span></div>
+        <div class="station" [class]="stationAssemblaggio.colorClass">
+          <div class="station-head">
+            <span class="station-num">{{ stationAssemblaggio.num }}</span>
+            <span class="station-icon">{{ stationAssemblaggio.icon }}</span>
+            <span class="station-title">{{ stationAssemblaggio.title }}</span>
+          </div>
+          <div class="machines-label">Macchine</div>
+          <div class="machines">
+            @for (m of stationAssemblaggio.machines; track m.code) {
+              <div class="machine"><span class="m-dot" [class]="m.status"></span><span class="m-name">{{ m.name }}</span></div>
+            }
+          </div>
+          <div class="orders-label">Ordini in fase <span class="count">{{ stationAssemblaggio.orders.length }}</span></div>
+          <div class="orders">
+            @for (o of stationAssemblaggio.orders; track o.order_number) {
+              <div class="order">
+                <span class="o-id">{{ o.order_number }}</span>
+                <span class="o-client">{{ o.customer }}</span>
+                <span class="o-pcs">{{ o.quantity }} kit</span>
+                <div class="o-progress"><div class="bar" [style.width.%]="o.pct"></div></div>
+              </div>
+            }
+            @empty { <div class="order-empty">Nessun ordine</div> }
+          </div>
+        </div>
+        <div class="arrow-col vertical"><span class="mini-arrow down">&#10142;</span></div>
+      </div>
+
+      <!-- BOTTOM ROW: Uscita ← Tagging -->
+      <div class="u-bottom">
+        <div class="station" [class]="stationUscita.colorClass">
+          <div class="station-head">
+            <span class="station-num">{{ stationUscita.num }}</span>
+            <span class="station-icon">{{ stationUscita.icon }}</span>
+            <span class="station-title">{{ stationUscita.title }}</span>
+          </div>
+          <div class="orders-label">Kit pronti <span class="count">{{ stationUscita.orders.length }}</span></div>
+          <div class="orders">
+            @for (o of stationUscita.orders; track o.order_number) {
+              <div class="order">
+                <span class="o-id">{{ o.order_number }}</span>
+                <span class="o-client">{{ o.customer }}</span>
+                <div class="o-progress"><div class="bar" [style.width.%]="o.pct"></div></div>
+              </div>
+            }
+            @empty { <div class="order-empty">Nessun kit pronto</div> }
+          </div>
+        </div>
+
+        <div class="arrow-col"><span class="mini-arrow">&#10140;</span></div>
+
+        <div class="station" [class]="stationTagging.colorClass">
+          <div class="station-head">
+            <span class="station-num">{{ stationTagging.num }}</span>
+            <span class="station-icon">{{ stationTagging.icon }}</span>
+            <span class="station-title">{{ stationTagging.title }}</span>
+          </div>
+          <div class="machines-label">Macchine</div>
+          <div class="machines">
+            @for (m of stationTagging.machines; track m.code) {
+              <div class="machine"><span class="m-dot" [class]="m.status"></span><span class="m-name">{{ m.name }}</span></div>
+            }
+          </div>
+          <div class="orders-label">Ordini in fase <span class="count">{{ stationTagging.orders.length }}</span></div>
+          <div class="orders">
+            @for (o of stationTagging.orders; track o.order_number) {
+              <div class="order">
+                <span class="o-id">{{ o.order_number }}</span>
+                <span class="o-client">{{ o.customer }}</span>
+                <span class="o-pcs">{{ o.quantity }} kit</span>
+                <div class="o-progress"><div class="bar" [style.width.%]="o.pct"></div></div>
+              </div>
+            }
+            @empty { <div class="order-empty">Nessun ordine</div> }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="floor-legend">
+      <span class="legend-title">Stato macchine:</span>
+      <span class="legend-item"><span class="m-dot working"></span> In lavorazione</span>
+      <span class="legend-item"><span class="m-dot online"></span> Online</span>
+      <span class="legend-item"><span class="m-dot idle"></span> Idle / TBD</span>
+      <span class="legend-sep"></span>
+      <span class="legend-note">Barra = avanzamento ordine nella fase</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AI SUGGESTIONS ============ -->
 <div class="ai-suggestions-section">
   <div class="section-header">
     <div class="section-title">
@@ -37,18 +184,14 @@
       <div class="empty-icon">
         <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="24" color="var(--rw-orange)" />
       </div>
-      <p>Clicca <strong>Genera suggerimenti</strong> per analizzare lo stato attuale dello stabilimento e ricevere azioni operative concrete.</p>
+      <p>Clicca <strong>Genera suggerimenti</strong> per analizzare lo stato attuale e ricevere azioni operative concrete.</p>
     </div>
   }
 
   @if (loading) {
-    <div class="loading-grid">
+    <div class="suggestions-grid">
       @for (i of [1,2,3,4]; track i) {
-        <div class="skeleton-card">
-          <div class="skel-line skel-short"></div>
-          <div class="skel-line skel-long"></div>
-          <div class="skel-line skel-medium"></div>
-        </div>
+        <div class="skeleton-card"><div class="skel-line skel-short"></div><div class="skel-line skel-long"></div><div class="skel-line skel-medium"></div></div>
       }
     </div>
   }
@@ -67,8 +210,7 @@
           <p class="card-desc">{{ s.description }}</p>
           <button class="card-action" (click)="execute(s)" [disabled]="s._executing || s._done">
             @if (s._done) {
-              <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="var(--green)" />
-              Fatto
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="var(--green)" /> Fatto
             } @else if (s._executing) {
               <span class="spinner spinner-sm"></span>
             } @else {
