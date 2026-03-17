@@ -1,3 +1,26 @@
+<!-- ============ HERO STATUS ============ -->
+<div class="hero">
+  <div class="hero-left">
+    <h1 class="hero-greeting">{{ greeting }}</h1>
+    <p class="hero-summary">{{ statusLine }}</p>
+  </div>
+  <div class="hero-right">
+    <div class="health-ring" [class]="healthStatus">
+      <svg viewBox="0 0 36 36" class="health-svg">
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="2.5" stroke="var(--N20)" />
+        <circle cx="18" cy="18" r="15.9" fill="none" stroke-width="2.5"
+          stroke="currentColor" stroke-dasharray="100" [attr.stroke-dashoffset]="100 - healthPct"
+          stroke-linecap="round" transform="rotate(-90 18 18)" />
+      </svg>
+      <span class="health-pct">{{ healthPct }}%</span>
+    </div>
+    <div class="health-meta">
+      <span class="health-label">{{ healthLabel }}</span>
+      <span class="health-detail">{{ machinesWorking }}/{{ machinesTotal }} macchine &middot; {{ totalActiveOrders }} ordini</span>
+    </div>
+  </div>
+</div>
+
 <!-- ============ MAIN LAYOUT 9-3 ============ -->
 <div class="main-row">
 

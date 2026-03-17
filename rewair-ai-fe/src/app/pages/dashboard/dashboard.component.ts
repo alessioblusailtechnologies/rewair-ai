@@ -53,7 +53,17 @@ export class DashboardComponent implements OnInit {
   stationTagging: Station = { num: '04', title: 'Tagging', icon: '\u2691', colorClass: 's-tagging', machines: [], orders: [] };
   stationUscita: Station = { num: '05', title: 'Uscita Kit', icon: '\u2708', colorClass: 's-uscita', machines: [], orders: [] };
   totalActiveOrders = 0;
+  machinesWorking = 0;
+  machinesTotal = 0;
+  throughputToday = 0;
   floorLoading = true;
+
+  // Hero status
+  greeting = '';
+  statusLine = '';
+  healthPct = 0;
+  healthStatus = 'good';
+  healthLabel = 'Operativo';
 
   // AI Suggestions
   suggestions: AiSuggestion[] = [];
@@ -62,7 +72,51 @@ export class DashboardComponent implements OnInit {
 
   constructor(private api: ApiService, private router: Router) {}
 
-  ngOnInit() { this.loadFloorPlan(); }
+  ngOnInit() {
+    this.greeting = this.buildGreeting();
+    this.loadFloorPlan();
+  }
+
+  private buildGreeting(): string {
+    const h = new Date().getHours();
+    const name = 'Marco';
+    if (h < 12) return `Buongiorno, ${name}`;
+    if (h < 18) return `Buon pomeriggio, ${name}`;
+    return `Buonasera, ${name}`;
+  }
+
+  private updateHero() {
+    // Health percentage based on machines working ratio + having orders flowing
+    const machineRatio = this.machinesTotal > 0 ? this.machinesWorking / this.machinesTotal : 0;
+    const hasFlow = this.totalActiveOrders > 0 ? 1 : 0;
+    this.healthPct = Math.round((machineRatio * 0.7 + hasFlow * 0.3) * 100);
+
+    if (this.healthPct >= 70) {
+      this.healthStatus = 'good';
+      this.healthLabel = 'Operativo';
+    } else if (this.healthPct >= 40) {
+      this.healthStatus = 'warn';
+      this.healthLabel = 'Parziale';
+    } else {
+      this.healthStatus = 'critical';
+      this.healthLabel = 'Attenzione';
+    }
+
+    // Build natural language status line
+    const parts: string[] = [];
+    if (this.machinesWorking > 0) {
+      parts.push(`${this.machinesWorking} macchine in lavorazione su ${this.machinesTotal}`);
+    } else {
+      parts.push(`Nessuna macchina in lavorazione al momento`);
+    }
+    if (this.totalActiveOrders > 0) {
+      parts.push(`${this.totalActiveOrders} ordini attivi nel flusso`);
+    }
+    if (this.throughputToday > 0) {
+      parts.push(`${this.throughputToday} kit schedulati per oggi`);
+    }
+    this.statusLine = parts.join(' · ');
+  }
 
   loadFloorPlan() {
     this.floorLoading = true;
@@ -104,6 +158,15 @@ export class DashboardComponent implements OnInit {
           .forEach(s => s.orders.forEach(o => allOrderNums.add(o.order_number)));
         this.totalActiveOrders = allOrderNums.size;
 
+        // KPI: machines
+        const allMachines = [...this.stationTaglio.machines, ...this.stationAssemblaggio.machines, ...this.stationTagging.machines];
+        this.machinesTotal = allMachines.length;
+        this.machinesWorking = allMachines.filter(m => m.status === 'working').length;
+
+        // KPI: throughput today (scheduled quantities)
+        this.throughputToday = schedule.reduce((sum, s) => sum + (s.planned_quantity || 0), 0);
+
+        this.updateHero();
         this.floorLoading = false;
       },
       error: () => this.floorLoading = false,
