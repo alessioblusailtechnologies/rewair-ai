@@ -17,8 +17,8 @@
 .floor-section { margin-bottom: 28px; }
 
 .plant {
-  background: var(--N0);
-  border: 1px solid var(--N30);
+  background: #f9f7f2;
+  border: 1px solid #edeae3;
   border-radius: var(--r-lg);
   padding: 20px;
   position: relative;
@@ -93,7 +93,7 @@
 
 // === Station card ===
 .station {
-  background: var(--N10);
+  background: var(--N0);
   border: 1px solid var(--N30);
   border-radius: var(--r-lg);
   padding: 16px;
