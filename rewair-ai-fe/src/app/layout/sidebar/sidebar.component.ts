@@ -18,7 +18,7 @@ export class SidebarComponent {
   logoIcon = FastWindIcon;
 
   navItems = [
-    { route: '/dashboard', icon: DashboardBrowsingIcon, label: 'Dashboard' },
+    { route: '/dashboard', icon: DashboardBrowsingIcon, label: 'Home' },
     { route: '/orders', icon: Task01Icon, label: 'Ordini' },
     { route: '/workforce', icon: UserGroupIcon, label: 'Workforce' },
     { route: '/quality', icon: SecurityCheckIcon, label: 'Quality' },
