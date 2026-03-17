@@ -116,6 +116,16 @@ export interface WorkforceGap {
   gap: number;
 }
 
+export interface AiSuggestion {
+  title: string;
+  description: string;
+  impact: 'positive' | 'negative' | 'neutral' | 'warning';
+  action_type: 'create_overtime' | 'schedule_maintenance' | 'reassign_worker' | 'flag_risk';
+  payload: Record<string, any>;
+  _executing?: boolean;
+  _done?: boolean;
+}
+
 export interface WorkforceAiResponse {
   summary: string;
   answer: string;

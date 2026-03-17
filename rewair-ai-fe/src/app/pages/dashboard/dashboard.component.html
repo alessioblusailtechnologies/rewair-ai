@@ -8,20 +8,76 @@
   </div>
 </div>
 
-<div class="kpi-grid">
-  @for (kpi of kpis; track kpi.label) {
-    <div class="kpi-card">
-      <div class="kpi-icon">
-        <hugeicons-icon [strokeWidth]="1.5" [icon]="kpi.icon" [size]="20" color="var(--rw-blue)" />
+<!-- AI Suggestions -->
+<div class="ai-suggestions-section">
+  <div class="section-header">
+    <div class="section-title">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="18" color="var(--rw-orange)" />
+      <span>Azioni suggerite dall'AI</span>
+    </div>
+    <button class="btn ai" (click)="generate()" [disabled]="loading">
+      @if (loading) {
+        <span class="spinner spinner-sm"></span> Analisi...
+      } @else {
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="14" color="white" />
+        {{ suggestions.length ? 'Rigenera' : 'Genera suggerimenti' }}
+      }
+    </button>
+  </div>
+
+  @if (error) {
+    <div class="ai-error">
+      <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="14" color="var(--red)" />
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  @if (!suggestions.length && !loading && !error) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="24" color="var(--rw-orange)" />
       </div>
-      <div class="kpi-content">
-        <span class="kpi-value">{{ kpi.value }}</span>
-        <span class="kpi-label">{{ kpi.label }}</span>
-      </div>
-      <span class="kpi-trend" [class.up]="kpi.up" [class.down]="!kpi.up">
-        <hugeicons-icon [strokeWidth]="1.5" [icon]="kpi.up ? ArrowUpIcon : ArrowDownIcon" [size]="12" color="currentColor" />
-        {{ kpi.trend }}
-      </span>
+      <p>Clicca <strong>Genera suggerimenti</strong> per analizzare lo stato attuale dello stabilimento e ricevere azioni operative concrete.</p>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-grid">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="skeleton-card">
+          <div class="skel-line skel-short"></div>
+          <div class="skel-line skel-long"></div>
+          <div class="skel-line skel-medium"></div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (suggestions.length && !loading) {
+    <div class="suggestions-grid">
+      @for (s of suggestions; track s.title) {
+        <div class="suggestion-card" [class]="'impact-' + s.impact" [class.done]="s._done">
+          <div class="card-top">
+            <span class="impact-badge" [class]="s.impact">
+              <span class="impact-dot" [class]="s.impact"></span>
+              {{ impactLabel(s.impact) }}
+            </span>
+          </div>
+          <h3 class="card-title">{{ s.title }}</h3>
+          <p class="card-desc">{{ s.description }}</p>
+          <button class="card-action" (click)="execute(s)" [disabled]="s._executing || s._done">
+            @if (s._done) {
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="CheckIcon" [size]="14" color="var(--green)" />
+              Fatto
+            } @else if (s._executing) {
+              <span class="spinner spinner-sm"></span>
+            } @else {
+              {{ actionLabel(s.action_type) }}
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="ArrowIcon" [size]="12" color="currentColor" />
+            }
+          </button>
+        </div>
+      }
     </div>
   }
 </div>

@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   Order, Customer, Product, OrderLine,
   Worker, Machine, ShiftType, ProductionSchedule,
-  WorkforceAssignment, WorkforceGap, WorkforceAiResponse
+  WorkforceAssignment, WorkforceGap, WorkforceAiResponse, AiSuggestion
 } from '../models/order.model';
 import { IntegrationConfig, EmailLog } from '../models/integration.model';
 
@@ -111,6 +111,14 @@ export class ApiService {
 
   workforceAiChat(question: string): Observable<WorkforceAiResponse> {
     return this.http.post<WorkforceAiResponse>(`${this.url}/ai/workforce/chat`, { question });
+  }
+
+  getAiSuggestions(): Observable<{ suggestions: AiSuggestion[] }> {
+    return this.http.get<{ suggestions: AiSuggestion[] }>(`${this.url}/ai/workforce/suggestions`);
+  }
+
+  createOvertime(data: { worker_id: string; date: string; hours: number; reason: string }): Observable<any> {
+    return this.http.post(`${this.url}/production/overtime`, data);
   }
 
   // --- Order Lines (for schedule form) ---

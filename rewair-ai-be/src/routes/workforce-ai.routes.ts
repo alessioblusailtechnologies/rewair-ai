@@ -98,6 +98,98 @@ router.post('/chat', async (req, res, next) => {
 });
 
 // ---------------------------------------------------------------------------
+// Proactive AI suggestions for dashboard
+// ---------------------------------------------------------------------------
+
+const SUGGESTIONS_PROMPT = `Sei l'assistente AI di ReWAir. Analizza lo stato attuale dello stabilimento e proponi esattamente 4 azioni operative concrete e attuabili OGGI o nei prossimi giorni.
+
+Ogni azione deve essere basata su dati REALI dal contesto: ordini in ritardo, gap workforce, macchine sotto-utilizzate, operatori disponibili, scadenze imminenti, ecc.
+
+TIPI DI AZIONE DISPONIBILI:
+- "create_overtime": proponi straordinario per un operatore specifico. Payload: { "worker_code": "RW001", "date": "YYYY-MM-DD", "hours": number, "reason": "motivo" }
+- "schedule_maintenance": proponi manutenzione programmata. Payload: { "machine_code": "LECTRA_1", "start_date": "YYYY-MM-DD", "end_date": "YYYY-MM-DD", "reason": "maintenance|cleaning|changeover" }
+- "reassign_worker": suggerisci riallocazione operatore. Payload: { "worker_code": "RW001", "from_phase": "cutting", "to_phase": "assembly", "date": "YYYY-MM-DD" }
+- "flag_risk": segnala un rischio su ordine/consegna. Payload: { "order_number": "ORD-2026-0147", "risk": "descrizione rischio" }
+
+REGOLE:
+- SEMPRE in italiano
+- Usa nomi reali, codici reali, date reali dal contesto
+- Le 4 azioni devono essere DIVERSE tra loro (non 4 straordinari)
+- Ordina per priorità: la più urgente per prima
+- Ogni azione deve avere un impatto misurabile
+
+Rispondi SOLO con JSON valido:
+{
+  "suggestions": [
+    {
+      "title": "Titolo breve dell'azione (max 8 parole)",
+      "description": "Spiegazione concreta del perché e dell'impatto atteso.",
+      "impact": "positive|negative|warning|neutral",
+      "action_type": "create_overtime|schedule_maintenance|reassign_worker|flag_risk",
+      "payload": { ... }
+    }
+  ]
+}`;
+
+/**
+ * GET /api/ai/workforce/suggestions
+ * Proactive AI suggestions — no user input needed.
+ */
+router.get('/suggestions', async (req, res, next) => {
+  try {
+    const context = await loadWorkforceContext();
+    const contextText = formatContext(context);
+
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const response = await client.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2048,
+      temperature: 0.3,
+      system: SUGGESTIONS_PROMPT,
+      messages: [{
+        role: 'user',
+        content: `${contextText}\n\nAnalizza lo stato attuale e proponi 4 azioni operative. Rispondi SOLO con JSON valido.`,
+      }],
+    });
+
+    const textBlock = response.content.find(b => b.type === 'text');
+    if (!textBlock || textBlock.type !== 'text') throw new Error('Nessuna risposta dall\'AI');
+
+    let json = textBlock.text.trim();
+    if (json.startsWith('```')) {
+      json = json.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+    }
+
+    const parsed = JSON.parse(json);
+
+    // Resolve codes to UUIDs for executable actions
+    const enriched = await enrichSuggestions(parsed.suggestions || [], context);
+
+    res.json({ suggestions: enriched });
+  } catch (e) { next(e); }
+});
+
+/**
+ * Resolve worker_code / machine_code / order_number to real DB IDs.
+ */
+async function enrichSuggestions(suggestions: any[], context: any) {
+  return suggestions.map((s: any) => {
+    const p = s.payload || {};
+
+    if (p.worker_code) {
+      const w = context.workers.find((w: any) => w.employee_code === p.worker_code);
+      if (w) p._worker_name = `${w.first_name} ${w.last_name}`;
+    }
+    if (p.machine_code) {
+      const m = context.machines.find((m: any) => m.code === p.machine_code);
+      if (m) p._machine_name = m.name;
+    }
+
+    return s;
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Context loading
 // ---------------------------------------------------------------------------
 
