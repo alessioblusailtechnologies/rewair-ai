@@ -6,7 +6,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 export class MarkdownPipe implements PipeTransform {
   constructor(private sanitizer: DomSanitizer) {
     marked.setOptions({
-      breaks: true,
+      breaks: false,
       gfm: true,
     });
   }

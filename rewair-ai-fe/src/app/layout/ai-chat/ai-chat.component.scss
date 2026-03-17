@@ -257,7 +257,8 @@
 // Markdown content
 .r-answer { margin-bottom: 8px; }
 
-.md-content {
+// ::ng-deep needed because innerHTML content doesn't get Angular's encapsulation attributes
+:host ::ng-deep .md-content {
   font-size: 13px;
   color: var(--N700);
   line-height: 1.55;

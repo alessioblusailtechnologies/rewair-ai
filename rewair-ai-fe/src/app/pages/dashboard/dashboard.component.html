@@ -59,7 +59,6 @@
 
       <!-- RIGHT: Assemblaggio (junction) -->
       <div class="u-right">
-        <div class="arrow-col vertical"><span class="mini-arrow">&#10142;</span></div>
         <div class="station" [class]="stationAssemblaggio.colorClass">
           <div class="station-head">
             <span class="station-num">{{ stationAssemblaggio.num }}</span>
@@ -85,7 +84,6 @@
             @empty { <div class="order-empty">Nessun ordine</div> }
           </div>
         </div>
-        <div class="arrow-col vertical"><span class="mini-arrow down">&#10142;</span></div>
       </div>
 
       <!-- BOTTOM ROW: Uscita ← Tagging -->
@@ -109,7 +107,7 @@
           </div>
         </div>
 
-        <div class="arrow-col"><span class="mini-arrow">&#10140;</span></div>
+        <div class="arrow-col"><span class="mini-arrow" style="display:inline-block;transform:rotate(180deg)">&#10142;</span></div>
 
         <div class="station" [class]="stationTagging.colorClass">
           <div class="station-head">

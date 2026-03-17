@@ -180,7 +180,8 @@
 
 .ai-answer { margin-bottom: 14px; }
 
-.md-content {
+// ::ng-deep needed because innerHTML content doesn't get Angular's encapsulation attributes
+:host ::ng-deep .md-content {
   font-size: 14px; color: var(--N700); line-height: 1.6;
   p { margin: 0 0 8px; &:last-child { margin-bottom: 0; } }
   strong { color: var(--N900); font-weight: 600; }
