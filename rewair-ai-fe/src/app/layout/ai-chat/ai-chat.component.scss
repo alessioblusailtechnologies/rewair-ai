@@ -272,11 +272,13 @@
 
   ul, ol {
     margin: 4px 0 8px;
-    padding-left: 20px;
+    padding-left: 1.5em;
+    list-style-position: outside;
   }
   li {
-    margin-bottom: 2px;
-    &::marker { color: var(--N200); }
+    margin-bottom: 3px;
+    padding-left: 4px;
+    &::marker { color: var(--N300); }
   }
 
   h3, h4 {
@@ -431,28 +433,16 @@
 }
 
 .r-recs ul {
-  list-style: none;
-  padding: 0;
+  list-style: disc;
+  padding-left: 20px;
+  margin: 0 0 0 4px;
 
   li {
-    position: relative;
-    padding-left: 14px;
     font-size: 12px;
     color: var(--N700);
-    line-height: 1.45;
+    line-height: 1.5;
     margin-bottom: 3px;
-
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 6px;
-      width: 5px;
-      height: 5px;
-      background: var(--rw-blue);
-      border-radius: 50%;
-    }
-
+    &::marker { color: var(--rw-blue); }
     &:last-child { margin-bottom: 0; }
   }
 }

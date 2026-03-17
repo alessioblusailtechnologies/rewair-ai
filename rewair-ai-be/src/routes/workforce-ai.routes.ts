@@ -30,12 +30,19 @@ COME RISPONDERE:
 - Per domande su capacità, calcola basandoti su: operatori disponibili × turni × capacità macchina
 - Quando menzioni un operatore, usa sempre nome e cognome e codice
 - Quando menzioni una macchina, usa il nome completo
-- Formatta la risposta answer con \\n per paragrafi separati
+
+FORMATO ANSWER (markdown):
+Il campo "answer" deve essere in MARKDOWN ben formattato. Usa:
+- Paragrafi separati da doppio a capo
+- **Grassetto** per nomi, codici e valori importanti
+- Elenchi puntati con "- " per liste (NON usare numerazione, solo trattini)
+- Intestazioni ### per separare sezioni se la risposta è lunga
+- NON includere raccomandazioni nel campo answer, mettile nel campo recommendations
 
 Rispondi SOLO con JSON valido (senza markdown fencing, senza commenti), con questo schema:
 {
   "summary": "Frase riassuntiva di massimo 15 parole",
-  "answer": "Risposta dettagliata con analisi concreta, dati specifici, nomi e numeri. Usa \\n per andare a capo tra paragrafi.",
+  "answer": "Risposta in markdown con analisi concreta, dati specifici, nomi e numeri.",
   "impact": "positive|negative|neutral|warning",
   "data_points": [{"label": "Etichetta", "value": "Valore concreto"}],
   "affected_entities": [{"type": "machine|worker|order", "name": "Nome", "code": "CODICE"}],
@@ -66,7 +73,7 @@ router.post('/chat', async (req, res, next) => {
     // Call Claude
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const response = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
       temperature: 0.2,
       system: WORKFORCE_SYSTEM_PROMPT,
