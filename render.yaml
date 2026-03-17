@@ -36,8 +36,6 @@ services:
   - type: web
     name: rewair-app
     runtime: static
-    region: frankfurt
-    plan: starter
     rootDir: rewair-ai-fe
     buildCommand: npm install && npm run build
     staticPublishPath: dist/rewair-ai-fe/browser
