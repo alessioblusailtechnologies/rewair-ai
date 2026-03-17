@@ -9,11 +9,12 @@ import {
 } from '@hugeicons/core-free-icons';
 import { ApiService } from '../../services/api.service';
 import { Worker, Machine, ProductionSchedule, Order, OrderLine, ShiftType, WorkforceAiResponse } from '../../models/order.model';
+import { MarkdownPipe } from '../../pipes/markdown.pipe';
 
 @Component({
   selector: 'app-workforce',
   standalone: true,
-  imports: [FormsModule, DatePipe, DecimalPipe, HugeiconsIconComponent],
+  imports: [FormsModule, DatePipe, DecimalPipe, HugeiconsIconComponent, MarkdownPipe],
   templateUrl: './workforce.component.html',
   styleUrl: './workforce.component.scss'
 })
@@ -69,7 +70,7 @@ export class WorkforceComponent implements OnInit {
     selectedWorkerIds: [] as string[],
   };
 
-  // AI Chat
+  // AI Inline bar
   aiQuestion = '';
   aiLoading = false;
   aiResponse: WorkforceAiResponse | null = null;
@@ -100,7 +101,7 @@ export class WorkforceComponent implements OnInit {
     this.api.getShifts().subscribe(d => this.shifts = d);
   }
 
-  // ==================== AI Chat ====================
+  // ==================== AI Inline ====================
   askAi() {
     const q = this.aiQuestion.trim();
     if (!q || this.aiLoading) return;
@@ -108,14 +109,8 @@ export class WorkforceComponent implements OnInit {
     this.aiResponse = null;
     this.aiError = '';
     this.api.workforceAiChat(q).subscribe({
-      next: (res) => {
-        this.aiResponse = res;
-        this.aiLoading = false;
-      },
-      error: (err) => {
-        this.aiError = err.error?.error || 'Errore nella comunicazione con l\'AI. Riprova.';
-        this.aiLoading = false;
-      },
+      next: (res) => { this.aiResponse = res; this.aiLoading = false; },
+      error: (err) => { this.aiError = err.error?.error || 'Errore nella comunicazione con l\'AI. Riprova.'; this.aiLoading = false; },
     });
   }
 
@@ -131,15 +126,7 @@ export class WorkforceComponent implements OnInit {
   }
 
   onAiKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      this.askAi();
-    }
-  }
-
-  getAnswerParagraphs(): string[] {
-    if (!this.aiResponse?.answer) return [];
-    return this.aiResponse.answer.split('\n').filter(p => p.trim());
+    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); this.askAi(); }
   }
 
   entityIcon(type: string): string {

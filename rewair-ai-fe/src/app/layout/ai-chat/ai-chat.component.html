@@ -1,0 +1,123 @@
+<!-- Floating trigger button -->
+<button class="ai-fab" [class.open]="open" (click)="toggle()">
+  @if (open) {
+    <hugeicons-icon [strokeWidth]="1.8" [icon]="CloseIcon" [size]="22" color="white" />
+  } @else {
+    <hugeicons-icon [strokeWidth]="1.8" [icon]="AiIcon" [size]="22" color="white" />
+  }
+</button>
+
+<!-- Chat panel -->
+@if (open) {
+  <div class="ai-panel">
+    <!-- Header -->
+    <div class="panel-header">
+      <div class="panel-title">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="16" color="var(--rw-orange)" />
+        <span>ReWAir AI</span>
+      </div>
+      <div class="panel-actions">
+        @if (messages.length) {
+          <button class="panel-action-btn" title="Nuova chat" (click)="clearChat()">
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="ClearIcon" [size]="14" color="currentColor" />
+          </button>
+        }
+        <button class="panel-action-btn" (click)="toggle()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CloseIcon" [size]="14" color="currentColor" />
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages area -->
+    <div class="panel-messages" #messagesContainer>
+      <!-- Empty state: show examples -->
+      @if (!messages.length) {
+        <div class="panel-empty">
+          <div class="panel-empty-icon">
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="28" color="var(--rw-orange)" />
+          </div>
+          <h3>Chiedimi qualsiasi cosa</h3>
+          <p>Interrogo il database e simulo scenari con dati reali.</p>
+          <div class="panel-examples">
+            @for (ex of examples; track ex) {
+              <button class="example-btn" (click)="useExample(ex)">{{ ex }}</button>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- Message list -->
+      @for (msg of messages; track $index) {
+        @if (msg.role === 'user') {
+          <div class="msg msg-user">
+            <div class="msg-bubble user-bubble">{{ msg.text }}</div>
+          </div>
+        }
+
+        @if (msg.role === 'ai') {
+          <div class="msg msg-ai">
+            <!-- Loading -->
+            @if (msg.loading) {
+              <div class="msg-bubble ai-bubble">
+                <div class="ai-typing">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+            }
+
+            <!-- Error -->
+            @if (msg.error) {
+              <div class="msg-bubble ai-bubble ai-bubble-error">
+                <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="14" color="var(--red)" />
+                <span>{{ msg.error }}</span>
+              </div>
+            }
+
+            <!-- Response -->
+            @if (msg.response; as r) {
+              <div class="msg-bubble ai-bubble">
+                <!-- Impact + summary -->
+                <div class="r-summary" [class]="'impact-' + r.impact">
+                  <span class="impact-dot" [class]="r.impact"></span>
+                  <strong>{{ r.summary }}</strong>
+                </div>
+
+                <!-- Answer markdown -->
+                <div class="r-answer md-content" [innerHTML]="r.answer | markdown"></div>
+
+                <!-- Recommendations -->
+                @if (r.recommendations?.length) {
+                  <div class="r-recs">
+                    <span class="r-recs-label">
+                      <hugeicons-icon [strokeWidth]="1.5" [icon]="TipIcon" [size]="12" color="var(--rw-blue)" />
+                      Raccomandazioni
+                    </span>
+                    <ul>
+                      @for (rec of r.recommendations; track $index) {
+                        <li>{{ rec }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Input bar -->
+    <div class="panel-input">
+      <input
+        type="text"
+        placeholder="Scrivi una domanda..."
+        [(ngModel)]="question"
+        (keydown)="onKeydown($event)"
+        [disabled]="loading"
+      />
+      <button class="send-btn" (click)="send()" [disabled]="!question.trim() || loading">
+        <hugeicons-icon [strokeWidth]="1.8" [icon]="SendIcon" [size]="16" color="white" />
+      </button>
+    </div>
+  </div>
+}

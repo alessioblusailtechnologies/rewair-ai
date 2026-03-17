@@ -10,7 +10,7 @@
   </div>
 </div>
 
-<!-- ============ AI ASSISTANT BAR ============ -->
+<!-- ============ AI WORKFORCE BAR ============ -->
 <div class="ai-section">
   <div class="ai-bar" [class.has-response]="aiResponse || aiLoading || aiError">
     <div class="ai-bar-header">
@@ -55,7 +55,6 @@
       </div>
     }
 
-    <!-- Loading state -->
     @if (aiLoading) {
       <div class="ai-loading">
         <div class="ai-loading-dots">
@@ -65,7 +64,6 @@
       </div>
     }
 
-    <!-- Error state -->
     @if (aiError) {
       <div class="ai-error">
         <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="16" color="var(--red)" />
@@ -73,10 +71,8 @@
       </div>
     }
 
-    <!-- AI Response -->
     @if (aiResponse) {
       <div class="ai-response">
-        <!-- Summary -->
         <div class="ai-summary" [class]="'impact-' + aiResponse.impact">
           <div class="ai-summary-badge">
             @switch (aiResponse.impact) {
@@ -89,14 +85,8 @@
           <h3 class="ai-summary-text">{{ aiResponse.summary }}</h3>
         </div>
 
-        <!-- Answer paragraphs -->
-        <div class="ai-answer">
-          @for (p of getAnswerParagraphs(); track $index) {
-            <p>{{ p }}</p>
-          }
-        </div>
+        <div class="ai-answer md-content" [innerHTML]="aiResponse.answer | markdown"></div>
 
-        <!-- Data points -->
         @if (aiResponse.data_points?.length) {
           <div class="ai-data-grid">
             @for (dp of aiResponse.data_points; track dp.label) {
@@ -108,7 +98,6 @@
           </div>
         }
 
-        <!-- Affected entities -->
         @if (aiResponse.affected_entities?.length) {
           <div class="ai-entities">
             <span class="ai-entities-label">Risorse coinvolte:</span>
@@ -124,7 +113,6 @@
           </div>
         }
 
-        <!-- Recommendations -->
         @if (aiResponse.recommendations?.length) {
           <div class="ai-recommendations">
             <span class="ai-rec-label">
