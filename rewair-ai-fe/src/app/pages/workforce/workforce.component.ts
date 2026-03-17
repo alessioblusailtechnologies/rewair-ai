@@ -4,10 +4,11 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { HugeiconsIconComponent } from '@hugeicons/angular';
 import {
   Calendar01Icon, UserGroupIcon, Add01Icon, Search01Icon,
-  Cancel01Icon, CheckmarkBadge01Icon, CheckmarkCircle01Icon
+  Cancel01Icon, CheckmarkBadge01Icon, CheckmarkCircle01Icon,
+  SparklesIcon, ArrowRight01Icon, AlertCircleIcon, MagicWand01Icon
 } from '@hugeicons/core-free-icons';
 import { ApiService } from '../../services/api.service';
-import { Worker, Machine, ProductionSchedule, Order, OrderLine, ShiftType } from '../../models/order.model';
+import { Worker, Machine, ProductionSchedule, Order, OrderLine, ShiftType, WorkforceAiResponse } from '../../models/order.model';
 
 @Component({
   selector: 'app-workforce',
@@ -25,6 +26,11 @@ export class WorkforceComponent implements OnInit {
   CancelIcon = Cancel01Icon;
   CheckIcon = CheckmarkBadge01Icon;
   CheckCircleIcon = CheckmarkCircle01Icon;
+  AiIcon = SparklesIcon;
+  SendIcon = ArrowRight01Icon;
+  ArrowIcon = ArrowRight01Icon;
+  AlertIcon = AlertCircleIcon;
+  InfoIcon = MagicWand01Icon;
 
   activeView: 'schedule' | 'workers' = 'schedule';
 
@@ -63,6 +69,19 @@ export class WorkforceComponent implements OnInit {
     selectedWorkerIds: [] as string[],
   };
 
+  // AI Chat
+  aiQuestion = '';
+  aiLoading = false;
+  aiResponse: WorkforceAiResponse | null = null;
+  aiError = '';
+  aiExamples = [
+    'Cosa succede se la Lectra 3 va in manutenzione lunedì?',
+    'Mostrami chi sa operare sia la Lectra che l\'ASM Big',
+    'Riesco a consegnare l\'ordine Vestas nei tempi?',
+    'Quali operatori possono coprire la fase di taglio nel turno pomeridiano?',
+    'Quanto mi costa aggiungere 2 interinali la prossima settimana?',
+  ];
+
   constructor(private api: ApiService) {
     const today = new Date();
     const monday = new Date(today);
@@ -79,6 +98,57 @@ export class WorkforceComponent implements OnInit {
     this.api.getMachines({ is_active: true }).subscribe(d => this.machines = d);
     this.api.getOrders().subscribe(d => this.orders = d);
     this.api.getShifts().subscribe(d => this.shifts = d);
+  }
+
+  // ==================== AI Chat ====================
+  askAi() {
+    const q = this.aiQuestion.trim();
+    if (!q || this.aiLoading) return;
+    this.aiLoading = true;
+    this.aiResponse = null;
+    this.aiError = '';
+    this.api.workforceAiChat(q).subscribe({
+      next: (res) => {
+        this.aiResponse = res;
+        this.aiLoading = false;
+      },
+      error: (err) => {
+        this.aiError = err.error?.error || 'Errore nella comunicazione con l\'AI. Riprova.';
+        this.aiLoading = false;
+      },
+    });
+  }
+
+  useExample(example: string) {
+    this.aiQuestion = example;
+    this.askAi();
+  }
+
+  clearAiResponse() {
+    this.aiResponse = null;
+    this.aiError = '';
+    this.aiQuestion = '';
+  }
+
+  onAiKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.askAi();
+    }
+  }
+
+  getAnswerParagraphs(): string[] {
+    if (!this.aiResponse?.answer) return [];
+    return this.aiResponse.answer.split('\n').filter(p => p.trim());
+  }
+
+  entityIcon(type: string): string {
+    switch (type) {
+      case 'machine': return 'M';
+      case 'worker': return 'O';
+      case 'order': return 'P';
+      default: return '?';
+    }
   }
 
   // ==================== Schedule ====================

@@ -5,7 +5,7 @@ import { environment } from '../../environments/environment';
 import {
   Order, Customer, Product, OrderLine,
   Worker, Machine, ShiftType, ProductionSchedule,
-  WorkforceAssignment, WorkforceGap
+  WorkforceAssignment, WorkforceGap, WorkforceAiResponse
 } from '../models/order.model';
 import { IntegrationConfig, EmailLog } from '../models/integration.model';
 
@@ -107,6 +107,10 @@ export class ApiService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post(`${this.url}/ai/extract-order`, formData);
+  }
+
+  workforceAiChat(question: string): Observable<WorkforceAiResponse> {
+    return this.http.post<WorkforceAiResponse>(`${this.url}/ai/workforce/chat`, { question });
   }
 
   // --- Order Lines (for schedule form) ---

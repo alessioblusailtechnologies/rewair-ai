@@ -115,3 +115,12 @@ export interface WorkforceGap {
   available_workers: number;
   gap: number;
 }
+
+export interface WorkforceAiResponse {
+  summary: string;
+  answer: string;
+  impact: 'positive' | 'negative' | 'neutral' | 'warning';
+  data_points: { label: string; value: string }[];
+  affected_entities: { type: 'machine' | 'worker' | 'order'; name: string; code: string }[];
+  recommendations: string[];
+}

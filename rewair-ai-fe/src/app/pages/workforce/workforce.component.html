@@ -10,6 +10,139 @@
   </div>
 </div>
 
+<!-- ============ AI ASSISTANT BAR ============ -->
+<div class="ai-section">
+  <div class="ai-bar" [class.has-response]="aiResponse || aiLoading || aiError">
+    <div class="ai-bar-header">
+      <div class="ai-label">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="AiIcon" [size]="18" color="var(--rw-orange)" />
+        <span>AI Workforce Assistant</span>
+      </div>
+      @if (aiResponse || aiError) {
+        <button class="ai-clear-btn" (click)="clearAiResponse()">
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="CancelIcon" [size]="14" color="currentColor" />
+          Chiudi
+        </button>
+      }
+    </div>
+
+    <div class="ai-input-row">
+      <input
+        type="text"
+        class="ai-input"
+        placeholder="Chiedi qualcosa sulla workforce... es: 'Cosa succede se la Lectra 3 va in manutenzione?'"
+        [(ngModel)]="aiQuestion"
+        (keydown)="onAiKeydown($event)"
+        [disabled]="aiLoading"
+      />
+      <button class="btn ai ai-send-btn" (click)="askAi()" [disabled]="!aiQuestion.trim() || aiLoading">
+        @if (aiLoading) {
+          <span class="spinner spinner-sm"></span>
+        } @else {
+          <hugeicons-icon [strokeWidth]="1.5" [icon]="SendIcon" [size]="16" color="white" />
+        }
+      </button>
+    </div>
+
+    @if (!aiResponse && !aiLoading && !aiError) {
+      <div class="ai-examples">
+        @for (ex of aiExamples; track ex) {
+          <button class="ai-chip" (click)="useExample(ex)">
+            <hugeicons-icon [strokeWidth]="1.5" [icon]="ArrowIcon" [size]="11" color="var(--rw-orange)" />
+            {{ ex }}
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Loading state -->
+    @if (aiLoading) {
+      <div class="ai-loading">
+        <div class="ai-loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Analisi in corso... sto interrogando il database e simulando lo scenario</p>
+      </div>
+    }
+
+    <!-- Error state -->
+    @if (aiError) {
+      <div class="ai-error">
+        <hugeicons-icon [strokeWidth]="1.5" [icon]="AlertIcon" [size]="16" color="var(--red)" />
+        <span>{{ aiError }}</span>
+      </div>
+    }
+
+    <!-- AI Response -->
+    @if (aiResponse) {
+      <div class="ai-response">
+        <!-- Summary -->
+        <div class="ai-summary" [class]="'impact-' + aiResponse.impact">
+          <div class="ai-summary-badge">
+            @switch (aiResponse.impact) {
+              @case ('positive') { <span class="impact-dot positive"></span> Scenario positivo }
+              @case ('negative') { <span class="impact-dot negative"></span> Scenario critico }
+              @case ('warning')  { <span class="impact-dot warning"></span> Attenzione }
+              @default           { <span class="impact-dot neutral"></span> Analisi }
+            }
+          </div>
+          <h3 class="ai-summary-text">{{ aiResponse.summary }}</h3>
+        </div>
+
+        <!-- Answer paragraphs -->
+        <div class="ai-answer">
+          @for (p of getAnswerParagraphs(); track $index) {
+            <p>{{ p }}</p>
+          }
+        </div>
+
+        <!-- Data points -->
+        @if (aiResponse.data_points?.length) {
+          <div class="ai-data-grid">
+            @for (dp of aiResponse.data_points; track dp.label) {
+              <div class="ai-data-card">
+                <span class="ai-data-value">{{ dp.value }}</span>
+                <span class="ai-data-label">{{ dp.label }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Affected entities -->
+        @if (aiResponse.affected_entities?.length) {
+          <div class="ai-entities">
+            <span class="ai-entities-label">Risorse coinvolte:</span>
+            <div class="ai-entities-list">
+              @for (e of aiResponse.affected_entities; track e.code) {
+                <span class="ai-entity-tag" [class]="'entity-' + e.type">
+                  <span class="entity-icon">{{ entityIcon(e.type) }}</span>
+                  {{ e.name }}
+                  <small>({{ e.code }})</small>
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Recommendations -->
+        @if (aiResponse.recommendations?.length) {
+          <div class="ai-recommendations">
+            <span class="ai-rec-label">
+              <hugeicons-icon [strokeWidth]="1.5" [icon]="InfoIcon" [size]="14" color="var(--rw-blue)" />
+              Raccomandazioni
+            </span>
+            <ul>
+              @for (rec of aiResponse.recommendations; track $index) {
+                <li>{{ rec }}</li>
+              }
+            </ul>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
 <!-- Page-level tabs -->
 <div class="page-tabs">
   <button class="page-tab" [class.active]="activeView === 'schedule'" (click)="activeView = 'schedule'">

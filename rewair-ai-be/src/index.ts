@@ -11,6 +11,7 @@ import ordersRoutes from './routes/orders.routes';
 import scheduleRoutes from './routes/schedule.routes';
 import productionRoutes from './routes/production.routes';
 import aiRoutes from './routes/ai.routes';
+import workforceAiRoutes from './routes/workforce-ai.routes';
 import integrationsRoutes from './routes/integrations.routes';
 import { startPolling, stopPolling } from './services/email-poller';
 
@@ -31,6 +32,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/schedule', scheduleRoutes);
 app.use('/api/production', productionRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/ai/workforce', workforceAiRoutes);
 app.use('/api/integrations', integrationsRoutes);
 
 // Health check
