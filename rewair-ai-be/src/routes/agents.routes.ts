@@ -40,7 +40,9 @@ function buildExecutionPrompt(agent: any, contextText: string): string {
 REGOLE:
 - Rispondi SEMPRE in italiano
 - Usa dati CONCRETI dal contesto: nomi reali, codici, numeri, date
-- Formatta la risposta in markdown leggibile
+- Formatta la risposta in markdown leggibile (titoli con ##, tabelle con |, liste con -)
+- NON usare MAI emoji, simboli unicode speciali o caratteri non-ASCII decorativi. Usa solo testo semplice.
+- Per enfasi usa **grassetto** e intestazioni, NON icone o simboli
 - Sii conciso ma completo
 
 ${contextText}`;

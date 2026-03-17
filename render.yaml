@@ -1,0 +1,53 @@
+services:
+  # ── Backend API (Node.js / Express) ──────────────────────────────
+  - type: web
+    name: rewair-api
+    runtime: node
+    region: frankfurt
+    plan: starter
+    rootDir: rewair-ai-be
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: PORT
+        value: "3000"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AI_PROVIDER
+        value: claude
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REDIRECT_URI
+        sync: false
+      - key: INTEGRATION_ENCRYPTION_KEY
+        sync: false
+      - key: EMAIL_POLL_INTERVAL_MS
+        value: "20000"
+
+  # ── Frontend (Angular 20 — static site) ─────────────────────────
+  - type: web
+    name: rewair-app
+    runtime: static
+    region: frankfurt
+    plan: starter
+    rootDir: rewair-ai-fe
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist/rewair-ai-fe/browser
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://rewair-api.onrender.com/api/*
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
