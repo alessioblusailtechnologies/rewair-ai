@@ -20,7 +20,6 @@
   background: var(--N0);
   border: 1px solid var(--N30);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow);
   overflow: hidden;
   transition: border-color var(--t);
 
@@ -122,7 +121,7 @@
   font-family: inherit;
   height: 40px;
 
-  &:hover { background: var(--N10); border-color: var(--N40); box-shadow: var(--shadow); }
+  &:hover { background: var(--N10); border-color: var(--N40); }
   &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
@@ -147,7 +146,7 @@
   background: var(--N0);
   border-radius: var(--r-lg);
   overflow: hidden; overflow-x: auto;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--N30);
 }
 
 .data-table {

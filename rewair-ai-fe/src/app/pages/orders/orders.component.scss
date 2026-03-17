@@ -70,7 +70,7 @@
   &:hover {
     background: linear-gradient(135deg, rgba(239,124,44,0.15), rgba(239,124,44,0.06));
     border-color: rgba(239,124,44,0.4);
-    box-shadow: 0 0 12px rgba(239,124,44,0.1);
+    border-color: rgba(239,124,44,0.4);
   }
 }
 
@@ -148,7 +148,7 @@
   border-radius: var(--r-lg);
   overflow: hidden;
   overflow-x: auto;
-  box-shadow: var(--shadow);
+  border: 1px solid var(--N30);
 }
 
 .data-table {
@@ -264,6 +264,7 @@
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--N30);
   box-shadow: var(--shadow-xl);
 }
 
@@ -481,6 +482,7 @@
   max-width: 700px;
   max-height: 90vh;
   overflow-y: auto;
+  border: 1px solid var(--N30);
   box-shadow: var(--shadow-xl);
 }
 

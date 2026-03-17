@@ -79,7 +79,7 @@ export class DashboardComponent implements OnInit {
 
   private buildGreeting(): string {
     const h = new Date().getHours();
-    const name = 'Marco';
+    const name = 'Alessio';
     if (h < 12) return `Buongiorno, ${name}`;
     if (h < 18) return `Buon pomeriggio, ${name}`;
     return `Buonasera, ${name}`;

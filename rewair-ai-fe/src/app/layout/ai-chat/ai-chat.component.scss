@@ -13,19 +13,17 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(239, 124, 44, 0.4);
   transition: all 0.2s ease;
   z-index: 400;
 
   &:hover {
     transform: scale(1.06);
-    box-shadow: 0 6px 20px rgba(239, 124, 44, 0.5);
+    background: #d96a1e;
   }
 
   &.open {
     background: var(--N500);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    &:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3); }
+    &:hover { background: var(--N700); }
   }
 }
 
@@ -38,7 +36,8 @@
   max-height: calc(100vh - 120px);
   background: var(--N0);
   border-radius: var(--r-lg);
-  box-shadow: 0 12px 40px rgba(9, 30, 66, 0.2), 0 0 1px rgba(9, 30, 66, 0.3);
+  border: 1px solid var(--N30);
+  box-shadow: var(--shadow-xl);
   display: flex;
   flex-direction: column;
   z-index: 399;

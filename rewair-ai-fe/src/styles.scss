@@ -47,15 +47,15 @@
   --teal-bg: #E6FCFF;
 
   // Radius
-  --r-sm: 3px;
-  --r: 4px;
-  --r-lg: 8px;
+  --r-sm: 4px;
+  --r: 6px;
+  --r-lg: 12px;
 
-  // Shadows
-  --shadow-sm: 0 1px 1px rgba(9,30,66,0.13);
-  --shadow: 0 1px 2px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
-  --shadow-lg: 0 4px 8px -2px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
-  --shadow-xl: 0 8px 16px -4px rgba(9,30,66,0.13), 0 0 1px rgba(9,30,66,0.2);
+  // Shadows — kept minimal, only for floating elements
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-lg: none;
+  --shadow-xl: 0 8px 24px -4px rgba(9,30,66,0.12), 0 0 1px rgba(9,30,66,0.15);
 
   --t: 0.15s ease-in-out;
 }
@@ -85,10 +85,10 @@ body {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 1px 8px;
-  border-radius: var(--r-sm);
+  padding: 2px 8px;
+  border-radius: 6px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   line-height: 20px;
@@ -125,30 +125,32 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border: none;
-  border-radius: var(--r-sm);
+  padding: 6px 14px;
+  border: 1px solid var(--N30);
+  border-radius: var(--r);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--t);
   font-family: inherit;
   white-space: nowrap;
-  background: var(--N20);
+  background: var(--N0);
   color: var(--N500);
   height: 32px;
 
-  &:hover { background: var(--N30); }
+  &:hover { background: var(--N10); border-color: var(--N40); }
 
   &.primary {
     background: var(--rw-blue);
     color: var(--N0);
-    &:hover { background: var(--rw-blue-dark); }
+    border-color: var(--rw-blue);
+    &:hover { background: var(--rw-blue-dark); border-color: var(--rw-blue-dark); }
   }
 
   &.ai {
     background: var(--rw-orange);
     color: var(--N0);
-    &:hover { background: #d96a1e; }
+    border-color: var(--rw-orange);
+    &:hover { background: #d96a1e; border-color: #d96a1e; }
   }
 }

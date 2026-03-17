@@ -7,7 +7,7 @@
   padding: 24px 28px;
   background: var(--N0);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--N30);
   animation: fadeSlideIn 0.5s ease both;
 }
 
@@ -116,7 +116,6 @@
   border-radius: var(--r-lg);
   padding: 20px;
   position: relative;
-  box-shadow: var(--shadow-lg);
 }
 
 .live-badge {
@@ -193,18 +192,16 @@
   padding: 16px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition: border-color 0.2s ease;
 
   // Always-visible accent bar
   &::after {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: var(--station-color); opacity: 0.6; transition: opacity 0.25s;
+    background: var(--station-color); opacity: 0.6; transition: opacity 0.2s;
   }
 
   &:hover {
-    border-color: var(--N40);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    border-color: var(--station-color);
     &::after { opacity: 1; }
   }
 }
@@ -256,15 +253,14 @@
   width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
   &.working {
     background: var(--rw-orange);
-    box-shadow: 0 0 6px rgba(239,124,44,.4);
     animation: dotPulse 1.8s ease-in-out infinite;
   }
-  &.online  { background: var(--green); box-shadow: 0 0 5px rgba(54,179,126,.35); }
+  &.online  { background: var(--green); }
   &.idle    { background: var(--N60); }
 }
 @keyframes dotPulse {
-  0%, 100% { box-shadow: 0 0 4px rgba(239,124,44,.3); }
-  50% { box-shadow: 0 0 10px rgba(239,124,44,.6); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 .m-name { color: var(--N400); font-size: 10px; font-weight: 500; }
 
@@ -349,7 +345,7 @@
 }
 .skeleton-card {
   background: var(--N0); border-radius: var(--r-lg);
-  padding: 20px; box-shadow: var(--shadow);
+  padding: 20px; border: 1px solid var(--N30);
 }
 .skel-line {
   height: 12px; background: var(--N20); border-radius: 6px;
@@ -363,14 +359,15 @@
 .suggestion-card {
   background: var(--N0); border-radius: var(--r-lg);
   padding: 18px; border-left: 4px solid var(--N30);
-  box-shadow: var(--shadow); display: flex; flex-direction: column;
-  transition: border-color var(--t), opacity var(--t), transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid var(--N30); border-left-width: 4px;
+  display: flex; flex-direction: column;
+  transition: border-color var(--t), opacity var(--t), background 0.2s ease;
   &.impact-positive { border-left-color: var(--green); }
   &.impact-negative { border-left-color: var(--red); }
   &.impact-warning  { border-left-color: var(--yellow); }
   &.impact-neutral  { border-left-color: var(--rw-blue); }
   &.done { opacity: 0.55; }
-  &:hover { transform: translateY(-1px); box-shadow: var(--shadow-lg); }
+  &:hover { background: var(--N10); }
 }
 .card-top { margin-bottom: 8px; }
 .impact-badge {
