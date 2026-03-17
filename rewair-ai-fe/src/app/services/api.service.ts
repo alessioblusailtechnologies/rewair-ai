@@ -8,6 +8,7 @@ import {
   WorkforceAssignment, WorkforceGap, WorkforceAiResponse, AiSuggestion
 } from '../models/order.model';
 import { IntegrationConfig, EmailLog } from '../models/integration.model';
+import { Agent, AgentExecution } from '../models/agent.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -153,5 +154,30 @@ export class ApiService {
 
   getEmailLogs(): Observable<EmailLog[]> {
     return this.http.get<EmailLog[]>(`${this.url}/integrations/email/logs`);
+  }
+
+  // --- Agents ---
+  getAgents(): Observable<Agent[]> {
+    return this.http.get<Agent[]>(`${this.url}/agents`);
+  }
+
+  createAgentFromPrompt(prompt: string): Observable<Agent> {
+    return this.http.post<Agent>(`${this.url}/agents/ai/create`, { prompt });
+  }
+
+  toggleAgent(id: string, active: boolean): Observable<Agent> {
+    return this.http.post<Agent>(`${this.url}/agents/${id}/toggle`, { active });
+  }
+
+  deleteAgent(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.url}/agents/${id}`);
+  }
+
+  runAgent(id: string): Observable<AgentExecution> {
+    return this.http.post<AgentExecution>(`${this.url}/agents/${id}/run`, {});
+  }
+
+  getAgentExecutions(agentId: string): Observable<AgentExecution[]> {
+    return this.http.get<AgentExecution[]>(`${this.url}/agents/${agentId}/executions`);
   }
 }

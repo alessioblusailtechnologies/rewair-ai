@@ -13,6 +13,7 @@ import productionRoutes from './routes/production.routes';
 import aiRoutes from './routes/ai.routes';
 import workforceAiRoutes from './routes/workforce-ai.routes';
 import integrationsRoutes from './routes/integrations.routes';
+import agentsRoutes from './routes/agents.routes';
 import { startPolling, stopPolling } from './services/email-poller';
 
 dotenv.config();
@@ -34,6 +35,7 @@ app.use('/api/production', productionRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/ai/workforce', workforceAiRoutes);
 app.use('/api/integrations', integrationsRoutes);
+app.use('/api/agents', agentsRoutes);
 
 // Health check
 app.get('/api/health', (_req, res) => {

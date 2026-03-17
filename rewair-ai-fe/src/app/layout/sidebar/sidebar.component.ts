@@ -4,7 +4,7 @@ import { HugeiconsIconComponent } from '@hugeicons/angular';
 import {
   DashboardBrowsingIcon, Task01Icon,
   UserGroupIcon, SecurityCheckIcon, ConnectIcon,
-  CogIcon
+  CogIcon, AiBrain02Icon
 } from '@hugeicons/core-free-icons';
 
 @Component({
@@ -23,6 +23,7 @@ export class SidebarComponent {
   ];
 
   secondaryItems = [
+    { route: '/agenti', icon: AiBrain02Icon, label: 'Agenti AI' },
     { route: '/integrations', icon: ConnectIcon, label: 'Integrazioni' },
     { route: '/settings', icon: CogIcon, label: 'Settings' },
   ];
