@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HugeiconsIconComponent } from '@hugeicons/angular';
 import {
-  FastWindIcon, DashboardBrowsingIcon, Task01Icon,
+  DashboardBrowsingIcon, Task01Icon,
   UserGroupIcon, SecurityCheckIcon, ConnectIcon,
   CogIcon
 } from '@hugeicons/core-free-icons';
@@ -15,8 +15,6 @@ import {
   styleUrl: './sidebar.component.scss'
 })
 export class SidebarComponent {
-  logoIcon = FastWindIcon;
-
   navItems = [
     { route: '/dashboard', icon: DashboardBrowsingIcon, label: 'Home' },
     { route: '/orders', icon: Task01Icon, label: 'Ordini' },

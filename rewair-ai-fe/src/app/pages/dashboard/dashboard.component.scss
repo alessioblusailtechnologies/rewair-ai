@@ -13,8 +13,16 @@
   font-size: 15px; font-weight: 600; color: var(--N900);
 }
 
+// ==================== MAIN 9-3 LAYOUT ====================
+.main-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
 // ==================== FACTORY FLOOR PLAN ====================
-.floor-section { margin-bottom: 28px; }
+.floor-section { }
 
 .plant {
   background: #f9f7f2;
@@ -205,7 +213,7 @@
 .legend-sep { flex: 1; }
 
 // ==================== AI SUGGESTIONS ====================
-.ai-suggestions-section { margin-bottom: 24px; }
+.ai-suggestions-section { }
 
 .ai-error {
   display: flex; align-items: center; gap: 8px;
@@ -230,9 +238,9 @@
 }
 
 .suggestions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 .skeleton-card {
   background: var(--N0); border-radius: var(--r-lg);

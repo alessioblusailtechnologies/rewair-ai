@@ -14,23 +14,20 @@
 }
 
 .sidebar-header {
-  padding: 14px 0 10px;
+  height: var(--topbar-height);
   display: flex;
+  align-items: center;
   justify-content: center;
   width: 100%;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-.logo-icon {
+.logo-img {
   width: 36px;
   height: 36px;
-  background: var(--rw-blue);
-  border-radius: var(--r-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  color: var(--N0);
+  object-fit: cover;
+  object-position: left center;
+  border-radius: 50%;
 }
 
 .sidebar-nav {
