@@ -67,7 +67,7 @@
       </thead>
       <tbody>
         @for (order of filteredOrders; track order.id) {
-          <tr>
+          <tr [class.new-order-highlight]="isNewOrder(order.id)">
             <td><strong>{{ order.order_number }}</strong></td>
             <td>
               <span class="customer-name">{{ order.customer?.name }}</span>

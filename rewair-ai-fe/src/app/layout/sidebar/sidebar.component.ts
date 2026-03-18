@@ -6,6 +6,7 @@ import {
   UserGroupIcon, SecurityCheckIcon, ConnectIcon,
   CogIcon, AiBrain02Icon
 } from '@hugeicons/core-free-icons';
+import { OrderPollingService } from '../../services/order-polling.service';
 
 @Component({
   selector: 'app-sidebar',
@@ -27,4 +28,6 @@ export class SidebarComponent {
     { route: '/integrations', icon: ConnectIcon, label: 'Integrazioni' },
     { route: '/settings', icon: CogIcon, label: 'Settings' },
   ];
+
+  constructor(public polling: OrderPollingService) {}
 }

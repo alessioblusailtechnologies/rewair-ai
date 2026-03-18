@@ -103,6 +103,23 @@
   }
 }
 
+.nav-badge {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  width: 9px;
+  height: 9px;
+  background: var(--rw-orange);
+  border-radius: 50%;
+  border: 2px solid var(--rw-blue-darkest);
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239,124,44,0.5); }
+  50% { box-shadow: 0 0 0 4px rgba(239,124,44,0); }
+}
+
 .sidebar-footer {
   padding: 12px 0;
   display: flex;

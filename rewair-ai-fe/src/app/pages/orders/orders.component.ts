@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { HugeiconsIconComponent } from '@hugeicons/angular';
 import {
   Add01Icon, File01Icon, Mail01Icon, Search01Icon,
@@ -9,6 +10,7 @@ import {
   AlertCircleIcon, Refresh01Icon, Loading01Icon
 } from '@hugeicons/core-free-icons';
 import { ApiService } from '../../services/api.service';
+import { OrderPollingService } from '../../services/order-polling.service';
 import { Order, Customer, Product } from '../../models/order.model';
 import { IntegrationConfig, EmailLog } from '../../models/integration.model';
 
@@ -25,7 +27,7 @@ interface OrderLineForm {
   templateUrl: './orders.component.html',
   styleUrl: './orders.component.scss'
 })
-export class OrdersComponent implements OnInit {
+export class OrdersComponent implements OnInit, OnDestroy {
   // Icons
   AddIcon = Add01Icon;
   FileIcon = File01Icon;
@@ -84,7 +86,11 @@ export class OrdersComponent implements OnInit {
     completed: 'Completato', cancelled: 'Annullato'
   };
 
-  constructor(private api: ApiService) {}
+  /** IDs of orders that just arrived from polling — used for highlight animation */
+  newOrderIds = new Set<string>();
+  private pollSub!: Subscription;
+
+  constructor(private api: ApiService, private polling: OrderPollingService) {}
 
   ngOnInit() {
     this.loadData();
@@ -92,6 +98,24 @@ export class OrdersComponent implements OnInit {
     this.api.getIntegrations().subscribe(configs => {
       this.emailIntegration = configs.find(c => c.type === 'email_google' && c.is_active) || null;
     });
+
+    // Mark existing unseen orders as seen (user is viewing the page)
+    this.polling.markAllSeen();
+
+    // Listen for new orders from polling — auto-refresh the list
+    this.pollSub = this.polling.newOrder$.subscribe(event => {
+      this.newOrderIds.add(event.order.id);
+      this.polling.markAllSeen();
+      this.loadData();
+    });
+  }
+
+  ngOnDestroy() {
+    this.pollSub?.unsubscribe();
+  }
+
+  isNewOrder(orderId: string): boolean {
+    return this.newOrderIds.has(orderId);
   }
 
   loadData() {

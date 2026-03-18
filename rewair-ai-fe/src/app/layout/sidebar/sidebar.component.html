@@ -8,6 +8,9 @@
       <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
         <hugeicons-icon [strokeWidth]="1.5" [icon]="item.icon" [size]="20" color="currentColor" />
         <span>{{ item.label }}</span>
+        @if (item.route === '/orders' && polling.hasUnseen) {
+          <span class="nav-badge"></span>
+        }
       </a>
     }
   </nav>

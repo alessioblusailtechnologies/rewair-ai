@@ -189,6 +189,15 @@
   }
 }
 
+// New order highlight — persistent
+.new-order-highlight {
+  background: rgba(239,124,44,0.05);
+
+  td:first-child {
+    box-shadow: inset 3px 0 0 var(--rw-orange);
+  }
+}
+
 .empty-state {
   text-align: center;
   padding: 40px 12px !important;
